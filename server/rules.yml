@@ -1,0 +1,85 @@
+# Kokonaisturvallisuus MVP - Tagging Rules
+# Deterministic tag and score generation without LLM
+
+categories:
+  medical:
+    weight: 0.25
+    keywords:
+      en: [doctor, nurse, paramedic, medical, health, first aid, emergency, ambulance, hospital, surgery, physician, therapist, pharmacist, dentist, veterinary]
+      fi: [lääkäri, sairaanhoitaja, ensihoitaja, terveys, ensiapu, ambulanssi, sairaala, kirurgia, terapeutti, apteekkari, hammaslääkäri, eläinlääkäri]
+    availability_bonus:
+      immediate: 20
+      "24h": 15
+      "48h": 10
+      unavailable: 0
+
+  technical:
+    weight: 0.20
+    keywords:
+      en: [engineer, technician, electrician, mechanic, IT, computer, software, hardware, network, telecom, radio, electronics, construction, maintenance]
+      fi: [insinööri, teknikko, sähköasentaja, mekaanikko, tietokone, ohjelmisto, laitteisto, verkko, tele, radio, elektroniikka, rakentaminen, huolto]
+    availability_bonus:
+      immediate: 15
+      "24h": 12
+      "48h": 8
+      unavailable: 0
+
+  logistics:
+    weight: 0.15
+    keywords:
+      en: [driver, transport, truck, vehicle, warehouse, supply, distribution, delivery, fuel, mechanic, fleet, shipping, logistics, coordinator]
+      fi: [kuljettaja, kuljetus, rekka, ajoneuvo, varasto, toimitus, jakelu, polttoaine, mekaanikko, kalusto, merenkulku, logistiikka, koordinaattori]
+    availability_bonus:
+      immediate: 12
+      "24h": 10
+      "48h": 7
+      unavailable: 0
+
+  communication:
+    weight: 0.15
+    keywords:
+      en: [translator, interpreter, communication, media, journalist, radio, television, press, public relations, social media, language, multilingual]
+      fi: [kääntäjä, tulkki, viestintä, media, toimittaja, radio, televisio, lehdistö, tiedotus, sosiaalinen media, kieli, monikielinen]
+    availability_bonus:
+      immediate: 10
+      "24h": 8
+      "48h": 5
+      unavailable: 0
+
+  leadership:
+    weight: 0.10
+    keywords:
+      en: [manager, director, supervisor, coordinator, leader, commander, captain, chief, executive, administrator, organizer, planner, decision maker]
+      fi: [johtaja, ohjaaja, valvoja, koordinaattori, johto, komentaja, kapteeni, päämies, johtava, hallinto, järjestäjä, suunnittelija, päätöksentekijä]
+    availability_bonus:
+      immediate: 8
+      "24h": 6
+      "48h": 4
+      unavailable: 0
+
+  general:
+    weight: 0.15
+    keywords:
+      en: [volunteer, helper, support, assistant, general, basic, available, willing, experienced, skilled, trained, certified]
+      fi: [vapaaehtoinen, avustaja, tuki, apulainen, yleinen, perus, saatavilla, halukas, kokenut, taitava, koulutettu, sertifioitu]
+    availability_bonus:
+      immediate: 5
+      "24h": 4
+      "48h": 3
+      unavailable: 0
+
+# Education level scoring
+education_scores:
+  "doctoral": 25
+  "masters": 20
+  "bachelors": 15
+  "associate": 10
+  "high_school": 5
+  "vocational": 8
+  "certificate": 6
+  "other": 3
+
+# Base scoring parameters
+base_score: 10
+max_score: 100
+min_keyword_matches: 1
