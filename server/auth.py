@@ -117,10 +117,18 @@ def get_user_id_hash(current_user: Dict[str, Any] = Depends(get_current_user)) -
 
 def can_reveal_pii(user_id: int, current_user: Dict[str, Any] = Depends(get_current_user)) -> bool:
     """Check if current user can reveal PII for given user_id"""
-    # Authorities can reveal PII after allocation
+    # Authorities can reveal PII only after allocation
     if current_user.get("role") == "authority":
-        # In a real system, check if user is allocated to current authority
-        return True
+        # Check if user is allocated (has an active allocation)
+        from db import get_db_session
+        from models import Allocation
+        
+        with get_db_session() as db:
+            allocation = db.query(Allocation).filter(
+                Allocation.user_id == user_id,
+                Allocation.status == "active"
+            ).first()
+            return allocation is not None
     
     # Users can see their own PII
     if current_user.get("national_id_hash") == f"hash_civilian{user_id}":

@@ -8,7 +8,7 @@ from sqlalchemy import and_, or_, func
 
 from db import get_db
 from models import User, Profile
-from schemas import SearchRequest, SearchResponse, SearchResult, DetailResponse
+from schemas import SearchRequest, SearchResponse, SearchResult, DetailResponse, UserResponse, ProfileResponse
 from auth import require_authority, can_reveal_pii
 from services.audit import audit
 
@@ -19,7 +19,7 @@ async def search_civilians(
     bbox: Optional[str] = Query(None, description="Comma-separated: min_lat,min_lon,max_lat,max_lon"),
     tags: Optional[str] = Query(None, description="Comma-separated tag list"),
     min_score: Optional[float] = Query(None, ge=0, le=100),
-    availability: Optional[str] = Query(None, regex="^(immediate|24h|48h|unavailable)$"),
+    availability: Optional[str] = Query(None, pattern="^(immediate|24h|48h|unavailable)$"),
     page: int = Query(1, ge=1),
     limit: int = Query(50, ge=1, le=100),
     current_user: dict = Depends(require_authority),
@@ -145,7 +145,7 @@ async def get_civilian_detail(
         address=user.address if pii_revealed else None,
         lat=user.lat if pii_revealed else None,
         lon=user.lon if pii_revealed else None,
-        created_at=user.created_at.isoformat()
+        created_at=user.created_at.isoformat() if user.created_at else None
     )
     
     profile_response = ProfileResponse(
@@ -156,7 +156,7 @@ async def get_civilian_detail(
         availability=profile.availability,
         capability_score=profile.capability_score,
         tags_json=profile.tags_json,
-        last_updated=profile.last_updated.isoformat(),
+        last_updated=profile.last_updated.isoformat() if profile.last_updated else None,
         status=profile.status
     )
     

@@ -50,7 +50,16 @@ async def create_request(
         db=db
     )
     
-    return RequestResponse.model_validate(new_request)
+    return RequestResponse(
+        id=new_request.id,
+        authority_id=new_request.authority_id,
+        type=new_request.type,
+        user_id=new_request.user_id,
+        message=new_request.message,
+        status=new_request.status,
+        created_at=new_request.created_at,
+        updated_at=new_request.updated_at
+    )
 
 @router.post("/allocate", response_model=AllocationResponse)
 async def allocate_civilian(
@@ -117,7 +126,14 @@ async def allocate_civilian(
         db=db
     )
     
-    return AllocationResponse.model_validate(new_allocation)
+    return AllocationResponse(
+        id=new_allocation.id,
+        user_id=new_allocation.user_id,
+        resource_id=new_allocation.resource_id,
+        mission_code=new_allocation.mission_code,
+        status=new_allocation.status,
+        created_at=new_allocation.created_at if new_allocation.created_at else None
+    )
 
 @router.get("/requests", response_model=list[RequestResponse])
 async def list_requests(
@@ -130,7 +146,18 @@ async def list_requests(
         Request.authority_id == current_user["national_id_hash"]
     ).order_by(Request.created_at.desc()).all()
     
-    return [RequestResponse.model_validate(req) for req in requests]
+    return [
+        RequestResponse(
+            id=req.id,
+            authority_id=req.authority_id,
+            type=req.type,
+            user_id=req.user_id,
+            message=req.message,
+            status=req.status,
+            created_at=req.created_at,
+            updated_at=req.updated_at
+        ) for req in requests
+    ]
 
 @router.get("/allocations", response_model=list[AllocationResponse])
 async def list_allocations(
@@ -145,4 +172,13 @@ async def list_allocations(
         Allocation.status == "active"
     ).order_by(Allocation.created_at.desc()).all()
     
-    return [AllocationResponse.model_validate(alloc) for alloc in allocations]
+    return [
+        AllocationResponse(
+            id=alloc.id,
+            user_id=alloc.user_id,
+            resource_id=alloc.resource_id,
+            mission_code=alloc.mission_code,
+            status=alloc.status,
+            created_at=alloc.created_at if alloc.created_at else None
+        ) for alloc in allocations
+    ]

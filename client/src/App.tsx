@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { getAuthHeaders, OfflineQueue } from './lib/api';
+import { getAuthHeaders, setAuthHeaders, clearAuthHeaders, OfflineQueue } from './lib/api';
 import LoginMock from './pages/LoginMock';
 import CivilianForm from './pages/CivilianForm';
 import AuthorityMap from './pages/AuthorityMap';
@@ -8,6 +8,14 @@ import AuthorityMap from './pages/AuthorityMap';
 function App() {
   const [authState, setAuthState] = useState(getAuthHeaders());
   const [pendingCount, setPendingCount] = useState(0);
+
+  // Initialize auth state from localStorage on app start
+  useEffect(() => {
+    const savedAuth = getAuthHeaders();
+    if (savedAuth.user && savedAuth.role) {
+      setAuthState({ user: savedAuth.user, role: savedAuth.role as 'civilian' | 'authority', isAuthenticated: true });
+    }
+  }, []);
 
   useEffect(() => {
     // Update pending count when auth state changes
@@ -32,10 +40,16 @@ function App() {
   }, [authState]);
 
   const handleLogin = (user: string, role: 'civilian' | 'authority') => {
+    // Store auth headers in localStorage for API requests
+    setAuthHeaders(user, role);
+    // Update local state
     setAuthState({ user, role, isAuthenticated: true });
   };
 
   const handleLogout = () => {
+    // Clear auth headers from localStorage
+    clearAuthHeaders();
+    // Update local state
     setAuthState({ isAuthenticated: false });
   };
 

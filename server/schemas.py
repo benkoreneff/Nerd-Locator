@@ -109,7 +109,7 @@ class AllocationResponse(BaseModel):
     resource_id: Optional[int] = None
     mission_code: str
     status: str
-    created_at: datetime
+    created_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
 
 class HeatmapPoint(BaseModel):
