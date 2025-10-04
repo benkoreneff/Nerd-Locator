@@ -115,14 +115,15 @@ async def submit_profile(
         existing_profile.education_level = request.education_level
         existing_profile.skills = request.skills
         existing_profile.free_text = request.free_text
-        existing_profile.availability = request.availability
+        # Availability is automatically set to "available" when profile is submitted
+        existing_profile.availability = "available"
         
         # Regenerate tags and score
         tags, score = tagger.generate_tags_and_score(
             education_level=request.education_level,
             skills=request.skills,
             free_text=request.free_text or "",
-            availability=request.availability
+            availability="available"
         )
         existing_profile.tags_json = tags
         existing_profile.capability_score = score
@@ -135,7 +136,7 @@ async def submit_profile(
             education_level=request.education_level,
             skills=request.skills,
             free_text=request.free_text or "",
-            availability=request.availability
+            availability="available"
         )
         
         profile = Profile(
@@ -143,7 +144,7 @@ async def submit_profile(
             education_level=request.education_level,
             skills=request.skills,
             free_text=request.free_text,
-            availability=request.availability,
+            availability="available",
             capability_score=score,
             tags_json=tags,
             status="available"

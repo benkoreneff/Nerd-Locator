@@ -47,29 +47,26 @@ export default function Drawer({ isOpen, onClose, civilian, onRequestInfo, onAll
 
   return (
     <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-40"
-        onClick={handleClose}
-      />
-
-      {/* Drawer */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-lg bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out">
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Civilian Details
-            </h2>
-            <button
-              onClick={handleClose}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+      {/* Sidebar */}
+      <div className={`bg-white shadow-xl border-l border-gray-200 transition-all duration-300 ease-in-out flex-shrink-0 ${
+        isOpen ? 'w-96' : 'w-0 overflow-hidden'
+      }`}>
+        {isOpen && (
+          <div className="flex flex-col h-full">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Civilian Details
+              </h2>
+              <button
+                onClick={handleClose}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -295,7 +292,8 @@ export default function Drawer({ isOpen, onClose, civilian, onRequestInfo, onAll
               </div>
             )}
           </div>
-        </div>
+          </div>
+        )}
       </div>
     </>
   );

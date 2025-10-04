@@ -69,7 +69,6 @@ export default function AuthorityMap() {
     bbox: '',
     tags: '',
     minScore: 0,
-    availability: '',
   });
 
   // Load initial data
@@ -92,7 +91,6 @@ export default function AuthorityMap() {
         bbox: filters.bbox || undefined,
         tags: filters.tags || undefined,
         min_score: filters.minScore || undefined,
-        availability: filters.availability || undefined,
         limit: 100,
       };
 
@@ -225,97 +223,112 @@ export default function AuthorityMap() {
         </div>
       )}
 
-      {/* Map */}
-      <div className="flex-1 relative">
-        {loading && (
-          <div className="absolute top-4 left-4 z-[1000] bg-white p-3 rounded-lg shadow-lg">
-            <div className="flex items-center">
-              <div className="spinner mr-2"></div>
-              <span className="text-sm">Loading...</span>
+      {/* Main content area with flexible layout */}
+      <div className="flex-1 flex">
+        {/* Map container */}
+        <div className={`relative transition-all duration-300 ${drawerOpen ? 'flex-1' : 'flex-1'}`}>
+          {loading && (
+            <div className="absolute top-4 left-4 z-[1000] bg-white p-3 rounded-lg shadow-lg">
+              <div className="flex items-center">
+                <div className="spinner mr-2"></div>
+                <span className="text-sm">Loading...</span>
+              </div>
             </div>
-          </div>
-        )}
-
-        <MapContainer
-          center={mapCenter}
-          zoom={12}
-          bounds={mapBounds}
-          className="h-full w-full"
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          
-          {/* Heatmap layer */}
-          {showHeatmap && heatmapData && (
-            <HeatmapLayer points={heatmapData.points} />
           )}
-          
-          {/* Civilian markers */}
-          {results.map((civilian) => (
-            <Marker
-              key={civilian.user_id}
-              position={[civilian.lat, civilian.lon]}
-              eventHandlers={{
-                click: () => handleCivilianClick(civilian.user_id),
-              }}
-            >
-              <Popup>
-                <div className="p-2">
-                  <h3 className="font-medium text-gray-900">
-                    Civilian #{civilian.user_id}
-                  </h3>
-                  <div className="mt-2 space-y-1 text-sm">
-                    <p><strong>Education:</strong> {civilian.education_level}</p>
-                    <p><strong>Score:</strong> {civilian.capability_score}/100</p>
-                    <p><strong>Availability:</strong> {civilian.availability}</p>
-                    <p><strong>Status:</strong> 
-                      <span className={`ml-1 badge ${
-                        civilian.status === 'available' ? 'badge-success' :
-                        civilian.status === 'allocated' ? 'badge-warning' :
-                        'badge-danger'
-                      }`}>
-                        {civilian.status}
-                      </span>
-                    </p>
-                    <div className="mt-2">
-                      <strong>Skills:</strong>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {civilian.skills.slice(0, 3).map(skill => (
-                          <span key={skill} className="badge badge-primary text-xs">
-                            {skill}
-                          </span>
-                        ))}
-                        {civilian.skills.length > 3 && (
-                          <span className="text-xs text-gray-500">
-                            +{civilian.skills.length - 3} more
-                          </span>
-                        )}
+
+          <MapContainer
+            center={mapCenter}
+            zoom={12}
+            bounds={mapBounds}
+            className="h-full w-full"
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            
+            {/* Heatmap layer */}
+            {showHeatmap && heatmapData && (
+              <HeatmapLayer points={heatmapData.points} />
+            )}
+            
+            {/* Civilian markers */}
+            {results.map((civilian) => (
+              <Marker
+                key={civilian.user_id}
+                position={[civilian.lat, civilian.lon]}
+                eventHandlers={{
+                  click: () => handleCivilianClick(civilian.user_id),
+                }}
+              >
+                <Popup>
+                  <div className="p-2">
+                    <h3 className="font-medium text-gray-900">
+                      Civilian #{civilian.user_id}
+                    </h3>
+                    <div className="mt-2 space-y-1 text-sm">
+                      <p><strong>Education:</strong> {civilian.education_level}</p>
+                      <p><strong>Score:</strong> {civilian.capability_score}/100</p>
+                      <p><strong>Availability:</strong> {civilian.availability}</p>
+                      <p><strong>Status:</strong> 
+                        <span className={`ml-1 badge ${
+                          civilian.status === 'available' ? 'badge-success' :
+                          civilian.status === 'allocated' ? 'badge-warning' :
+                          'badge-danger'
+                        }`}>
+                          {civilian.status}
+                        </span>
+                      </p>
+                      <div className="mt-2">
+                        <strong>Skills:</strong>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {civilian.skills.slice(0, 3).map(skill => (
+                            <span key={skill} className="badge badge-primary text-xs">
+                              {skill}
+                            </span>
+                          ))}
+                          {civilian.skills.length > 3 && (
+                            <span className="text-xs text-gray-500">
+                              +{civilian.skills.length - 3} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="mt-2">
+                        <strong>Tags:</strong>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {civilian.tags.map(tag => (
+                            <span key={tag} className="badge badge-gray text-xs">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                    <div className="mt-2">
-                      <strong>Tags:</strong>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {civilian.tags.map(tag => (
-                          <span key={tag} className="badge badge-gray text-xs">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+                    <button
+                      onClick={() => handleCivilianClick(civilian.user_id)}
+                      className="mt-3 btn btn-primary text-xs"
+                    >
+                      View Details
+                    </button>
                   </div>
-                  <button
-                    onClick={() => handleCivilianClick(civilian.user_id)}
-                    className="mt-3 btn btn-primary text-xs"
-                  >
-                    View Details
-                  </button>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MapContainer>
+                </Popup>
+              </Marker>
+            ))}
+          </MapContainer>
+        </div>
+
+        {/* Drawer as sidebar */}
+        <Drawer
+          isOpen={drawerOpen}
+          onClose={() => {
+            setDrawerOpen(false);
+            setSelectedCivilian(null);
+          }}
+          civilian={selectedCivilian}
+          onRequestInfo={handleRequestInfo}
+          onAllocate={handleAllocate}
+        />
       </div>
 
       {/* Results summary */}
@@ -342,18 +355,6 @@ export default function AuthorityMap() {
           </div>
         </div>
       </div>
-
-      {/* Drawer */}
-      <Drawer
-        isOpen={drawerOpen}
-        onClose={() => {
-          setDrawerOpen(false);
-          setSelectedCivilian(null);
-        }}
-        civilian={selectedCivilian}
-        onRequestInfo={handleRequestInfo}
-        onAllocate={handleAllocate}
-      />
     </div>
   );
 }

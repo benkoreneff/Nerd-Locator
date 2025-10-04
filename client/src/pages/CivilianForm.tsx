@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { civilianApi, OfflineQueue } from '../lib/api';
-import { CivilianMeResponse, CivilianSubmitRequest, EDUCATION_LEVELS, AVAILABILITY_OPTIONS } from '../types';
+import { CivilianMeResponse, CivilianSubmitRequest, EDUCATION_LEVELS } from '../types';
 
 export default function CivilianForm() {
   const [profile, setProfile] = useState<CivilianMeResponse | null>(null);
@@ -15,7 +15,6 @@ export default function CivilianForm() {
   const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState('');
   const [freeText, setFreeText] = useState('');
-  const [availability, setAvailability] = useState('immediate');
   const [consent, setConsent] = useState(false);
 
   // Load existing profile
@@ -33,7 +32,6 @@ export default function CivilianForm() {
         setEducationLevel(response.data.profile.education_level);
         setSkills(response.data.profile.skills);
         setFreeText(response.data.profile.free_text || '');
-        setAvailability(response.data.profile.availability);
       }
     } catch (err) {
       console.error('Failed to load profile:', err);
@@ -60,7 +58,7 @@ export default function CivilianForm() {
       return;
     }
 
-    if (!educationLevel || skills.length === 0 || !availability) {
+    if (!educationLevel || skills.length === 0) {
       setError('Please fill in all required fields');
       return;
     }
@@ -74,7 +72,6 @@ export default function CivilianForm() {
       education_level: educationLevel,
       skills,
       free_text: freeText || undefined,
-      availability,
       consent: true,
     };
 
@@ -118,7 +115,7 @@ export default function CivilianForm() {
             Civilian Profile
           </h2>
           <p className="mt-1 text-sm text-gray-600">
-            Submit your capabilities and availability for emergency coordination
+            Submit your capabilities for emergency coordination
           </p>
         </div>
 
@@ -213,27 +210,6 @@ export default function CivilianForm() {
             />
           </div>
 
-          {/* Availability */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Availability <span className="text-red-500">*</span>
-            </label>
-            <div className="space-y-2">
-              {AVAILABILITY_OPTIONS.map(option => (
-                <label key={option.value} className="flex items-center">
-                  <input
-                    type="radio"
-                    name="availability"
-                    value={option.value}
-                    checked={availability === option.value}
-                    onChange={(e) => setAvailability(e.target.value)}
-                    className="form-checkbox"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">{option.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
 
           {/* Consent */}
           <div>

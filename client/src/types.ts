@@ -57,7 +57,6 @@ export interface CivilianSubmitRequest {
   education_level: string;
   skills: string[];
   free_text?: string;
-  availability: string;
   consent: boolean;
 }
 
@@ -117,12 +116,6 @@ export const EDUCATION_LEVELS = [
   'other'
 ] as const;
 
-export const AVAILABILITY_OPTIONS = [
-  { value: 'immediate', label: 'Immediate (0-2 hours)' },
-  { value: '24h', label: 'Within 24 hours' },
-  { value: '48h', label: 'Within 48 hours' },
-  { value: 'unavailable', label: 'Currently unavailable' }
-] as const;
 
 export const AVAILABLE_TAGS = [
   'medical',
