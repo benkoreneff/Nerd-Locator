@@ -258,42 +258,10 @@ export default function CivilianForm() {
             </div>
           )}
 
-          {/* Existing Profile Display */}
-          {profile?.profile && (
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Current Profile</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Capability Score</label>
-                  <p className="mt-1 text-sm text-gray-900">{profile.profile.capability_score}/100</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Status</label>
-                  <span className={`mt-1 badge ${
-                    profile.profile.status === 'available' ? 'badge-success' :
-                    profile.profile.status === 'allocated' ? 'badge-warning' :
-                    'badge-danger'
-                  }`}>
-                    {profile.profile.status}
-                  </span>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Tags</label>
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    {(profile.profile.tags_json || []).map(tag => (
-                      <span key={tag} className="badge badge-primary text-xs">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Last Updated</label>
-                  <p className="mt-1 text-sm text-gray-900">
-                    {new Date(profile.profile.last_updated).toLocaleString()}
-                  </p>
-                </div>
-              </div>
+          {/* Last Updated Footnote */}
+          {profile?.profile?.last_updated && (
+            <div className="text-center text-sm text-gray-500 pt-4 border-t border-gray-200">
+              Last updated: {new Date(profile.profile.last_updated).toLocaleString()}
             </div>
           )}
         </div>
