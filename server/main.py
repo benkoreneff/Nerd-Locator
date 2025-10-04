@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 import logging
 
 from db import engine, create_tables, get_db
-from routers import civilian, search, allocate, stats, admin
+from routers import civilian, search, allocate, stats, admin, skills
 from auth import setup_demo_auth
 
 # Configure logging
@@ -23,7 +23,13 @@ async def lifespan(app: FastAPI):
     logger.info("Starting Civitas")
     create_tables()
     setup_demo_auth()
-    logger.info("Database tables created and demo auth configured")
+    
+    # Seed canonical skills
+    from routers.skills import seed_canonical_skills
+    with next(get_db()) as db:
+        seed_canonical_skills(db)
+    
+    logger.info("Database tables created, demo auth configured, and skills seeded")
     
     yield
     
@@ -53,6 +59,7 @@ app.include_router(search.router, prefix="/search", tags=["search"])
 app.include_router(allocate.router, prefix="/allocate", tags=["allocate"])
 app.include_router(stats.router, prefix="/stats", tags=["stats"])
 app.include_router(admin.router, prefix="/admin", tags=["admin"])
+app.include_router(skills.router, prefix="/skills", tags=["skills"])
 
 @app.get("/")
 async def root():

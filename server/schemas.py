@@ -2,7 +2,7 @@
 Pydantic schemas for request/response validation
 """
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 from pydantic import BaseModel, Field
 
 # Base schemas
@@ -28,11 +28,16 @@ class ResourceSpec(BaseModel):
     quantity: Optional[int] = None
     specs: Optional[Dict[str, Any]] = None
 
+# Skills schemas
+class SkillSpec(BaseModel):
+    id: Optional[int] = None
+    name: Optional[str] = None
+
 class CivilianSubmitRequest(BaseModel):
     submission_id: str
     education_level: str
     industry: Optional[str] = None
-    skills: List[str]
+    skills: List[Union[str, SkillSpec]]  # Support both string and SkillSpec formats
     free_text: Optional[str] = None
     resources: Optional[List[ResourceSpec]] = None
     consent: bool = Field(..., description="Consent to data processing")
@@ -138,6 +143,18 @@ class ExportResponse(BaseModel):
     allocations: List[AllocationResponse]
     audit_logs: List[Dict[str, Any]]
     exported_at: datetime
+
+# Skills schemas
+class SkillResponse(BaseModel):
+    id: int
+    name: str
+    canonical: bool
+
+class SkillCreateRequest(BaseModel):
+    name: str
+
+class SkillSuggestResponse(BaseModel):
+    results: List[SkillResponse]
 
 # Config
 class Config:

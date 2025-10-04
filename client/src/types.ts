@@ -60,6 +60,12 @@ export interface ResourceSpec {
   specs?: Record<string, any>;
 }
 
+export interface SkillOption {
+  id: number;
+  name: string;
+  canonical: boolean;
+}
+
 export interface CivilianSubmitRequest {
   submission_id: string;
   education_level: string;

@@ -7,11 +7,51 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
 from db import get_db
-from models import User, Profile, Resource
+from models import User, Profile, Resource, Skill
 from schemas import CivilianSubmitRequest, CivilianMeResponse, UserResponse, ProfileResponse
 from auth import require_civilian, get_user_id_hash
 from services.tagger import tagger
 from services.audit import audit
+from sqlalchemy import func
+
+def normalize_skill_name(name: str) -> str:
+    """Normalize skill name: trim, collapse spaces, Title Case"""
+    return ' '.join(name.strip().split()).title()
+
+def resolve_skills(db: Session, skills_data: list) -> list:
+    """Resolve skills from mixed format (strings or SkillSpec objects) to skill names"""
+    resolved_skills = []
+    
+    for skill_item in skills_data:
+        if isinstance(skill_item, str):
+            # Legacy string format - normalize and use as-is
+            resolved_skills.append(normalize_skill_name(skill_item))
+        else:
+            # SkillSpec object
+            if skill_item.id:
+                # Resolve by ID
+                skill = db.query(Skill).filter(Skill.id == skill_item.id).first()
+                if skill:
+                    resolved_skills.append(skill.name)
+            elif skill_item.name:
+                # Resolve by name or create if not exists
+                normalized_name = normalize_skill_name(skill_item.name)
+                
+                # Check if skill exists (case-insensitive)
+                existing_skill = db.query(Skill).filter(
+                    func.lower(Skill.name) == normalized_name.lower()
+                ).first()
+                
+                if existing_skill:
+                    resolved_skills.append(existing_skill.name)
+                else:
+                    # Create new skill
+                    new_skill = Skill(name=normalized_name, canonical=False)
+                    db.add(new_skill)
+                    db.commit()
+                    resolved_skills.append(normalized_name)
+    
+    return resolved_skills
 
 router = APIRouter()
 
@@ -107,6 +147,9 @@ async def submit_profile(
         db.commit()
         db.refresh(user)
     
+    # Resolve skills from mixed format
+    resolved_skills = resolve_skills(db, request.skills)
+    
     # Check if profile already exists with this submission_id
     # (In a real system, you'd store submission_id in the database)
     existing_profile = db.query(Profile).filter(Profile.user_id == user.id).first()
@@ -115,7 +158,7 @@ async def submit_profile(
         # Update existing profile
         existing_profile.education_level = request.education_level
         existing_profile.industry = request.industry
-        existing_profile.skills = request.skills
+        existing_profile.skills = resolved_skills
         existing_profile.free_text = request.free_text
         # Availability is automatically set to "available" when profile is submitted
         existing_profile.availability = "available"
@@ -124,7 +167,7 @@ async def submit_profile(
         resources_data = [r.dict() for r in request.resources] if request.resources else []
         tags, score = tagger.generate_tags_and_score(
             education_level=request.education_level,
-            skills=request.skills,
+            skills=resolved_skills,
             free_text=request.free_text or "",
             availability="available",
             resources=resources_data,
@@ -157,7 +200,7 @@ async def submit_profile(
         resources_data = [r.dict() for r in request.resources] if request.resources else []
         tags, score = tagger.generate_tags_and_score(
             education_level=request.education_level,
-            skills=request.skills,
+            skills=resolved_skills,
             free_text=request.free_text or "",
             availability="available",
             resources=resources_data,
@@ -168,7 +211,7 @@ async def submit_profile(
             user_id=user.id,
             education_level=request.education_level,
             industry=request.industry,
-            skills=request.skills,
+            skills=resolved_skills,
             free_text=request.free_text,
             availability="available",
             capability_score=score,

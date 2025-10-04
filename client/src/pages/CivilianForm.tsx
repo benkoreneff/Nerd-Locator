@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { civilianApi, OfflineQueue } from '../lib/api';
-import { CivilianMeResponse, CivilianSubmitRequest, EDUCATION_LEVELS, INDUSTRY_OPTIONS, INDUSTRY_MAPPING, ResourceSpec } from '../types';
+import { CivilianMeResponse, CivilianSubmitRequest, EDUCATION_LEVELS, INDUSTRY_OPTIONS, INDUSTRY_MAPPING, ResourceSpec, SkillOption } from '../types';
 import ToolsAssets from '../components/ToolsAssets';
+import SkillsTypeahead from '../components/SkillsTypeahead';
 
 export default function CivilianForm() {
   const [profile, setProfile] = useState<CivilianMeResponse | null>(null);
@@ -14,8 +15,7 @@ export default function CivilianForm() {
   // Form state
   const [educationLevel, setEducationLevel] = useState('');
   const [industry, setIndustry] = useState('');
-  const [skills, setSkills] = useState<string[]>([]);
-  const [skillInput, setSkillInput] = useState('');
+  const [skills, setSkills] = useState<SkillOption[]>([]);
   const [freeText, setFreeText] = useState('');
   const [resources, setResources] = useState<ResourceSpec[]>([]);
   const [consent, setConsent] = useState(false);
@@ -37,7 +37,15 @@ export default function CivilianForm() {
         const industryKey = response.data.profile.industry;
         const industryDisplayName = industryKey ? Object.keys(INDUSTRY_MAPPING).find(key => INDUSTRY_MAPPING[key] === industryKey) || '' : '';
         setIndustry(industryDisplayName);
-        setSkills(response.data.profile.skills);
+        
+        // Convert skills from strings to SkillOption objects
+        const skillOptions: SkillOption[] = response.data.profile.skills.map((skillName: string, index: number) => ({
+          id: -1 - index, // Use negative IDs for legacy skills without IDs
+          name: skillName,
+          canonical: true // Assume legacy skills are canonical
+        }));
+        setSkills(skillOptions);
+        
         setFreeText(response.data.profile.free_text || '');
       }
     } catch (err) {
@@ -48,16 +56,6 @@ export default function CivilianForm() {
     }
   };
 
-  const handleSkillAdd = () => {
-    if (skillInput.trim() && !skills.includes(skillInput.trim())) {
-      setSkills([...skills, skillInput.trim()]);
-      setSkillInput('');
-    }
-  };
-
-  const handleSkillRemove = (skillToRemove: string) => {
-    setSkills(skills.filter(skill => skill !== skillToRemove));
-  };
 
   const handleSubmit = async () => {
     if (!consent) {
@@ -78,7 +76,10 @@ export default function CivilianForm() {
       submission_id: uuidv4(),
       education_level: educationLevel,
       industry: industry ? INDUSTRY_MAPPING[industry] : undefined,
-      skills,
+      skills: skills.map(skill => ({
+        id: skill.id > 0 ? skill.id : undefined,
+        name: skill.name
+      })),
       free_text: freeText || undefined,
       resources: resources.length > 0 ? resources : undefined,
       consent: true,
@@ -190,42 +191,14 @@ export default function CivilianForm() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Skills
               </label>
-              <div className="flex space-x-2 mb-2">
-                <input
-                  type="text"
-                  value={skillInput}
-                  onChange={(e) => setSkillInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleSkillAdd())}
-                  placeholder="Add a skill (inside or outside your industry)..."
-                  className="form-input flex-1"
-                />
-                <button
-                  type="button"
-                  onClick={handleSkillAdd}
-                  className="btn btn-secondary"
-                >
-                  Add
-                </button>
-              </div>
-              <p className="text-sm text-gray-600 mb-2">
+              <SkillsTypeahead
+                selectedSkills={skills}
+                onSkillsChange={setSkills}
+                placeholder="Add a skill (inside or outside your industry)..."
+              />
+              <p className="text-sm text-gray-600 mt-2">
                 List relevant skills from your chosen industry or any other areas where you could contribute.
               </p>
-            <div className="flex flex-wrap gap-2">
-              {skills.map(skill => (
-                <span
-                  key={skill}
-                  className="badge badge-primary flex items-center"
-                >
-                  {skill}
-                  <button
-                    onClick={() => handleSkillRemove(skill)}
-                    className="ml-1 text-primary-600 hover:text-primary-800"
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
             </div>
           )}
 

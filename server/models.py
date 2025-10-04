@@ -1,9 +1,10 @@
 """
 Database models for Civitas
 """
-from sqlalchemy import Column, Integer, String, Float, DateTime, Text, JSON, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, Float, DateTime, Text, JSON, ForeignKey, Boolean, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+from sqlalchemy import func as sql_func
 from db import Base
 
 class User(Base):
@@ -106,6 +107,21 @@ class AuditLog(Base):
     details_json = Column(JSON, nullable=True)  # Additional context
     
     # Index for time-based queries
+    __table_args__ = (
+        {"sqlite_autoincrement": True},
+    )
+
+class Skill(Base):
+    """Skill model - canonical skills with aliases"""
+    __tablename__ = "skills"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False, unique=True)
+    canonical = Column(Boolean, default=True)
+    aliases = Column(JSON, nullable=True)  # List of alternative names
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    
     __table_args__ = (
         {"sqlite_autoincrement": True},
     )

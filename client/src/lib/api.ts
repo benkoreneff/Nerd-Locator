@@ -9,7 +9,8 @@ import {
   AllocateRequest,
   HeatmapResponse,
   SummaryStats,
-  OfflineQueueItem
+  OfflineQueueItem,
+  SkillOption
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -256,5 +257,20 @@ window.addEventListener('online', () => {
 window.addEventListener('offline', () => {
   console.log('Gone offline, requests will be queued');
 });
+
+// Skills API
+export const skillsApi = {
+  async suggestSkills(query: string, limit: number = 10): Promise<{ results: SkillOption[] }> {
+    const response = await api.get(`/skills/suggest`, {
+      params: { q: query, limit }
+    });
+    return response.data;
+  },
+
+  async createSkill(name: string): Promise<SkillOption> {
+    const response = await api.post('/skills/', { name });
+    return response.data;
+  }
+};
 
 export default api;
