@@ -67,7 +67,7 @@ function App() {
             <div className="flex justify-between items-center py-4">
               <div className="flex items-center">
                 <h1 className="text-2xl font-bold text-finland-blue">
-                  Kokonaisturvallisuus MVP
+                  Civitas
                 </h1>
                 <span className="ml-3 px-2 py-1 text-xs font-medium bg-primary-100 text-primary-800 rounded-full">
                   {authState.role === 'civilian' ? 'Civilian' : 'Authority'}
@@ -125,7 +125,7 @@ function App() {
         <footer className="bg-white border-t border-gray-200 mt-auto">
           <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
             <div className="text-center text-sm text-gray-500">
-              <p>Kokonaisturvallisuus MVP - Demo Version</p>
+              <p>Civitas - Demo Version</p>
               <p className="mt-1">
                 {navigator.onLine ? (
                   <span className="text-green-600">● Online</span>

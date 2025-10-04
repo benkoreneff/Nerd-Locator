@@ -29,7 +29,7 @@ export default function LoginMock({ onLogin }: LoginMockProps) {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-finland-blue">
-            Kokonaisturvallisuus MVP
+            Civitas
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Demo Authentication - Choose your role

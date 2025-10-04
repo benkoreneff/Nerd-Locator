@@ -1,5 +1,5 @@
 """
-Database models for Kokonaisturvallisuus MVP
+Database models for Civitas
 """
 from sqlalchemy import Column, Integer, String, Float, DateTime, Text, JSON, ForeignKey, Boolean
 from sqlalchemy.orm import relationship

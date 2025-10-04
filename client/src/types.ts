@@ -1,4 +1,4 @@
-// Type definitions for Kokonaisturvallisuus MVP
+// Type definitions for Civitas
 
 export interface User {
   id: number;

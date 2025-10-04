@@ -1,5 +1,5 @@
 """
-Authentication and authorization for Kokonaisturvallisuus MVP
+Authentication and authorization for Civitas
 """
 import os
 from typing import Optional, Dict, Any

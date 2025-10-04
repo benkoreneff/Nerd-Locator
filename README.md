@@ -1,9 +1,9 @@
-# Kokonaisturvallisuus MVP
+# Civitas
 
 Cursor yhteenveto:
 
 "
-🎉 Kokonaisturvallisuus MVP - COMPLETE!
+🎉 Civitas - COMPLETE!
 I have successfully built a comprehensive MVP for the Finnish "kokonaisturvallisuus" civilian-to-authority coordination tool. Here's what has been delivered:
 ✅ Core Features Implemented
 1. Civilian Flow:

@@ -1,4 +1,4 @@
--- Kokonaisturvallisuus MVP Seed Data
+-- Civitas Seed Data
 -- Demo data for testing the system
 
 -- Insert sample users

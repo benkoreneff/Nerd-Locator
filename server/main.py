@@ -1,5 +1,5 @@
 """
-Kokonaisturvallisuus MVP - Main FastAPI application
+Civitas - Main FastAPI application
 """
 import os
 from contextlib import asynccontextmanager
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """Application lifespan events"""
     # Startup
-    logger.info("Starting Kokonaisturvallisuus MVP")
+    logger.info("Starting Civitas")
     create_tables()
     setup_demo_auth()
     logger.info("Database tables created and demo auth configured")
@@ -28,11 +28,11 @@ async def lifespan(app: FastAPI):
     yield
     
     # Shutdown
-    logger.info("Shutting down Kokonaisturvallisuus MVP")
+    logger.info("Shutting down Civitas")
 
 # Create FastAPI app
 app = FastAPI(
-    title="Kokonaisturvallisuus MVP",
+    title="Civitas",
     description="Finnish civilian-to-authority coordination tool",
     version="1.0.0",
     lifespan=lifespan
@@ -57,7 +57,7 @@ app.include_router(admin.router, prefix="/admin", tags=["admin"])
 @app.get("/")
 async def root():
     """Root endpoint"""
-    return {"message": "Kokonaisturvallisuus MVP API", "version": "1.0.0"}
+    return {"message": "Civitas API", "version": "1.0.0"}
 
 @app.get("/healthz")
 async def health_check():
