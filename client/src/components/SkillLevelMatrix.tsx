@@ -18,13 +18,13 @@ const LEVEL_DESCRIPTIONS: Record<Level0to5, string> = {
   5: "Professional/main hobby; multiple years; can lead & teach"
 };
 
-// Placeholder questions (temporary)
-const PLACEHOLDER_QUESTIONS = [
-  { id: 'medical_aid', label: 'Medical Aid' },
-  { id: 'logistics', label: 'Logistics' },
-  { id: 'comms_radio', label: 'Comms/Radio' },
-  { id: 'field_operations', label: 'Field Operations' },
-  { id: 'it_support', label: 'IT Support' }
+// Skill level assessment questions
+const SKILL_QUESTIONS = [
+  { id: 'drone_piloting', label: 'Drone Piloting' },
+  { id: 'rf_radio', label: 'RF/Radio' },
+  { id: '3d_printing', label: '3D Printing' },
+  { id: 'welding_metalwork', label: 'Welding/Metalwork' },
+  { id: 'electrical_work', label: 'Electrical Work' }
 ];
 
 const LEVELS: Level0to5[] = [0, 1, 2, 3, 4, 5];
@@ -156,7 +156,7 @@ export default function SkillLevelMatrix({ skillLevels, onSkillLevelsChange }: S
                   className="text-xs text-gray-600 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 rounded px-2 py-1"
                   onClick={() => {
                     const clearedLevels: Record<QuestionId, Level0to5 | null> = {};
-                    PLACEHOLDER_QUESTIONS.forEach(q => {
+                    SKILL_QUESTIONS.forEach(q => {
                       clearedLevels[q.id] = null;
                     });
                     onSkillLevelsChange(clearedLevels);
@@ -169,7 +169,7 @@ export default function SkillLevelMatrix({ skillLevels, onSkillLevelsChange }: S
             </tr>
           </thead>
           <tbody>
-            {PLACEHOLDER_QUESTIONS.map(question => (
+            {SKILL_QUESTIONS.map(question => (
               <tr key={question.id} className="hover:bg-gray-50">
                 <th className="border border-gray-300 px-3 py-2 text-left text-sm font-medium text-gray-700">
                   {question.label}

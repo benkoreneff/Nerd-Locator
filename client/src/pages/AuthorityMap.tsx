@@ -270,7 +270,6 @@ export default function AuthorityMap() {
                     <div className="mt-2 space-y-1 text-sm">
                       <p><strong>Education:</strong> {civilian.education_level}</p>
                       <p><strong>Score:</strong> {civilian.capability_score}/100</p>
-                      <p><strong>Availability:</strong> {civilian.availability}</p>
                       <p><strong>Status:</strong> 
                         <span className={`ml-1 badge ${
                           civilian.status === 'available' ? 'badge-success' :

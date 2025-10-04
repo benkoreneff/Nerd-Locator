@@ -8,13 +8,13 @@ interface SkillLevelDisplayProps {
 export default function SkillLevelDisplay({ skillLevels }: SkillLevelDisplayProps) {
   const [showOnlyAdvanced, setShowOnlyAdvanced] = useState(true);
 
-  // Placeholder skill names (matching the civilian form)
+  // Skill names (matching the civilian form)
   const skillNames: Record<string, string> = {
-    medical_aid: 'Medical Aid',
-    logistics: 'Logistics',
-    comms_radio: 'Comms/Radio',
-    field_operations: 'Field Operations',
-    it_support: 'IT Support'
+    drone_piloting: 'Drone Piloting',
+    rf_radio: 'RF/Radio',
+    '3d_printing': '3D Printing',
+    welding_metalwork: 'Welding/Metalwork',
+    electrical_work: 'Electrical Work'
   };
 
   const levels: Level0to5[] = [0, 1, 2, 3, 4, 5];
@@ -51,14 +51,14 @@ export default function SkillLevelDisplay({ skillLevels }: SkillLevelDisplayProp
         {filteredSkills.map(([skillId, level]) => (
           <div key={skillId} className="flex items-center space-x-4">
             {/* Skill name */}
-            <div className="w-32 flex-shrink-0">
+            <div className="w-40 flex-shrink-0">
               <span className="text-sm font-medium text-gray-700">
                 {skillNames[skillId] || skillId.replace('_', ' ')}
               </span>
             </div>
 
             {/* Level scale */}
-            <div className="flex items-center space-x-1 flex-1">
+            <div className="flex items-center space-x-1">
               {levels.map((l) => (
                 <div
                   key={l}
@@ -71,13 +71,6 @@ export default function SkillLevelDisplay({ skillLevels }: SkillLevelDisplayProp
                   {l}
                 </div>
               ))}
-            </div>
-
-            {/* Level description */}
-            <div className="w-48 flex-shrink-0">
-              <span className="text-xs text-gray-600">
-                Level {level} – {LEVEL_DESCRIPTIONS[level]}
-              </span>
             </div>
           </div>
         ))}

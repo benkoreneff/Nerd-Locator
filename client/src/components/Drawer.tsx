@@ -123,12 +123,6 @@ export default function Drawer({ isOpen, onClose, civilian, onRequestInfo, onAll
                   </span>
                 </div>
                 
-                <div>
-                  <span className="text-sm font-medium text-gray-700">Availability:</span>
-                  <span className="ml-2 text-sm text-gray-900">
-                    {civilian.profile.availability}
-                  </span>
-                </div>
                 
                 <div>
                   <span className="text-sm font-medium text-gray-700">Status:</span>

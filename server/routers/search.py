@@ -78,10 +78,13 @@ async def search_civilians(
     # Convert to response format (anonymized)
     search_results = []
     for user, profile in results:
-        # Add small random offset to location for privacy
-        import random
-        lat_offset = random.uniform(-0.01, 0.01)  # ~1km
-        lon_offset = random.uniform(-0.01, 0.01)
+        # Add small deterministic offset to location for privacy
+        # Using user ID to ensure consistent positioning while maintaining privacy
+        import hashlib
+        user_hash = hashlib.md5(str(user.id).encode()).hexdigest()
+        # Convert first 4 chars to deterministic offset (-0.01 to 0.01 range)
+        lat_offset = (int(user_hash[:4], 16) / 65535.0 - 0.5) * 0.02  # ~1km
+        lon_offset = (int(user_hash[4:8], 16) / 65535.0 - 0.5) * 0.02
         
         search_results.append(SearchResult(
             user_id=user.id,
