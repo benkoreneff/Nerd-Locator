@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { civilianApi, OfflineQueue } from '../lib/api';
-import { CivilianMeResponse, CivilianSubmitRequest, EDUCATION_LEVELS, INDUSTRY_OPTIONS, INDUSTRY_MAPPING, ResourceSpec, SkillOption } from '../types';
+import { CivilianMeResponse, CivilianSubmitRequest, EDUCATION_LEVELS, INDUSTRY_OPTIONS, INDUSTRY_MAPPING, ResourceSpec, SkillOption, Level0to5, QuestionId } from '../types';
 import ToolsAssets from '../components/ToolsAssets';
 import SkillsTypeahead from '../components/SkillsTypeahead';
+import SkillLevelMatrix from '../components/SkillLevelMatrix';
 
 export default function CivilianForm() {
   const [profile, setProfile] = useState<CivilianMeResponse | null>(null);
@@ -18,6 +19,7 @@ export default function CivilianForm() {
   const [skills, setSkills] = useState<SkillOption[]>([]);
   const [freeText, setFreeText] = useState('');
   const [resources, setResources] = useState<ResourceSpec[]>([]);
+  const [skillLevels, setSkillLevels] = useState<Record<QuestionId, Level0to5 | null>>({});
   const [consent, setConsent] = useState(false);
 
   // Load existing profile
@@ -82,6 +84,7 @@ export default function CivilianForm() {
       })),
       free_text: freeText || undefined,
       resources: resources.length > 0 ? resources : undefined,
+      skill_levels: Object.keys(skillLevels).length > 0 ? skillLevels : undefined,
       consent: true,
     };
 
@@ -201,6 +204,12 @@ export default function CivilianForm() {
               </p>
             </div>
           )}
+
+          {/* Skill Level Matrix */}
+          <SkillLevelMatrix 
+            skillLevels={skillLevels}
+            onSkillLevelsChange={setSkillLevels}
+          />
 
           {/* Tools & Assets */}
           <ToolsAssets 

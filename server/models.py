@@ -39,6 +39,7 @@ class Profile(Base):
     availability = Column(String(50), nullable=False)  # immediate/24h/48h/unavailable
     capability_score = Column(Float, default=0.0)
     tags_json = Column(JSON, nullable=True)  # Derived tags from rules
+    skill_levels = Column(JSON, nullable=True)  # Skill level matrix data
     last_updated = Column(DateTime, default=func.now(), onupdate=func.now())
     status = Column(String(50), default="available")  # available/requested/allocated/unavailable
     

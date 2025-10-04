@@ -92,7 +92,8 @@ async def search_civilians(
             tags=profile.tags_json or [],
             lat=user.lat + lat_offset,
             lon=user.lon + lon_offset,
-            status=profile.status
+            status=profile.status,
+            skill_levels=profile.skill_levels
         ))
     
     return SearchResponse(
@@ -156,6 +157,7 @@ async def get_civilian_detail(
         availability=profile.availability,
         capability_score=profile.capability_score,
         tags_json=profile.tags_json,
+        skill_levels=profile.skill_levels,
         last_updated=profile.last_updated.isoformat() if profile.last_updated else None,
         status=profile.status
     )

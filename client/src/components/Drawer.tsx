@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { DetailResponse } from '../types';
+import SkillLevelDisplay from './SkillLevelDisplay';
 
 interface DrawerProps {
   isOpen: boolean;
@@ -154,17 +155,13 @@ export default function Drawer({ isOpen, onClose, civilian, onRequestInfo, onAll
               </div>
             </div>
 
-            {/* Tags */}
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Capability Tags</h3>
-              <div className="flex flex-wrap gap-2">
-                {(civilian.profile.tags_json || []).map(tag => (
-                  <span key={tag} className="badge badge-gray">
-                    {tag}
-                  </span>
-                ))}
+            {/* Skill Levels */}
+            {civilian.profile.skill_levels && Object.keys(civilian.profile.skill_levels).length > 0 && (
+              <div>
+                <SkillLevelDisplay skillLevels={civilian.profile.skill_levels} />
               </div>
-            </div>
+            )}
+
 
             {/* Free Text */}
             {civilian.profile.free_text && (

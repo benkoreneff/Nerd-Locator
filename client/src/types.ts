@@ -38,6 +38,7 @@ export interface SearchResult {
   lat: number;
   lon: number;
   status: string;
+  skill_levels?: Record<QuestionId, Level0to5>;
 }
 
 export interface SearchResponse {
@@ -66,6 +67,19 @@ export interface SkillOption {
   canonical: boolean;
 }
 
+export type Level0to5 = 0 | 1 | 2 | 3 | 4 | 5;
+export type QuestionId = string;
+
+// Level descriptions for tooltips (matching civilian form)
+export const LEVEL_DESCRIPTIONS: Record<Level0to5, string> = {
+  0: "No experience",
+  1: "Basic awareness; need guidance",
+  2: "Can perform simple tasks with supervision",
+  3: "Independent for routine tasks",
+  4: "Advanced; can guide others in most situations",
+  5: "Professional/main hobby; multiple years; can lead & teach"
+};
+
 export interface CivilianSubmitRequest {
   submission_id: string;
   education_level: string;
@@ -73,6 +87,7 @@ export interface CivilianSubmitRequest {
   skills: string[];
   free_text?: string;
   resources?: ResourceSpec[];
+  skill_levels?: Record<QuestionId, Level0to5>;
   consent: boolean;
 }
 

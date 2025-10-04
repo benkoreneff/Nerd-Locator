@@ -6,6 +6,7 @@ import { SearchResult, DetailResponse, HeatmapResponse } from '../types';
 import Filters from '../components/Filters';
 import Drawer from '../components/Drawer';
 import HeatmapToggle from '../components/HeatmapToggle';
+import SkillLevelPill from '../components/SkillLevelPill';
 
 // Fix for default markers in React Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -294,16 +295,28 @@ export default function AuthorityMap() {
                           )}
                         </div>
                       </div>
-                      <div className="mt-2">
-                        <strong>Tags:</strong>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {civilian.tags.map(tag => (
-                            <span key={tag} className="badge badge-gray text-xs">
-                              {tag}
-                            </span>
-                          ))}
+                      {civilian.skill_levels && Object.keys(civilian.skill_levels).length > 0 && (
+                        <div className="mt-2">
+                          <strong>Skill Levels:</strong>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {Object.entries(civilian.skill_levels)
+                              .filter(([_, level]) => level >= 3)
+                              .slice(0, 3)
+                              .map(([skillName, level]) => (
+                                <SkillLevelPill
+                                  key={skillName}
+                                  skillName={skillName.replace('_', ' ')}
+                                  level={level}
+                                />
+                              ))}
+                            {Object.entries(civilian.skill_levels).filter(([_, level]) => level >= 3).length > 3 && (
+                              <span className="text-xs text-gray-500">
+                                +{Object.entries(civilian.skill_levels).filter(([_, level]) => level >= 3).length - 3} more
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                     <button
                       onClick={() => handleCivilianClick(civilian.user_id)}

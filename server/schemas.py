@@ -40,6 +40,7 @@ class CivilianSubmitRequest(BaseModel):
     skills: List[Union[str, SkillSpec]]  # Support both string and SkillSpec formats
     free_text: Optional[str] = None
     resources: Optional[List[ResourceSpec]] = None
+    skill_levels: Optional[Dict[str, int]] = None  # Skill level matrix data
     consent: bool = Field(..., description="Consent to data processing")
 
 class SearchRequest(BaseModel):
@@ -79,6 +80,7 @@ class ProfileResponse(BaseModel):
     availability: str
     capability_score: float
     tags_json: Optional[List[str]] = None
+    skill_levels: Optional[Dict[str, int]] = None
     last_updated: Optional[datetime] = None
     status: str
 
@@ -96,6 +98,7 @@ class SearchResult(BaseModel):
     lat: float  # Approximate
     lon: float  # Approximate
     status: str
+    skill_levels: Optional[Dict[str, int]] = None
 
 class SearchResponse(BaseModel):
     results: List[SearchResult]

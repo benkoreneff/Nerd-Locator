@@ -106,6 +106,7 @@ async def get_me(
             availability=profile.availability,
             capability_score=profile.capability_score,
             tags_json=profile.tags_json,
+            skill_levels=profile.skill_levels,
             last_updated=profile.last_updated,
             status=profile.status
         )
@@ -160,6 +161,7 @@ async def submit_profile(
         existing_profile.industry = request.industry
         existing_profile.skills = resolved_skills
         existing_profile.free_text = request.free_text
+        existing_profile.skill_levels = request.skill_levels
         # Availability is automatically set to "available" when profile is submitted
         existing_profile.availability = "available"
         
@@ -213,6 +215,7 @@ async def submit_profile(
             industry=request.industry,
             skills=resolved_skills,
             free_text=request.free_text,
+            skill_levels=request.skill_levels,
             availability="available",
             capability_score=score,
             tags_json=tags,
