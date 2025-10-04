@@ -1,12 +1,11 @@
 import React from 'react';
-import { AVAILABLE_TAGS, AVAILABILITY_OPTIONS } from '../types';
+import { AVAILABLE_TAGS } from '../types';
 
 interface FiltersProps {
   filters: {
     bbox: string;
     tags: string;
     minScore: number;
-    availability: string;
   };
   onFiltersChange: (filters: any) => void;
   onRefresh: () => void;
@@ -30,11 +29,10 @@ export default function Filters({ filters, onFiltersChange, onRefresh }: Filters
       bbox: '',
       tags: '',
       minScore: 0,
-      availability: '',
     });
   };
 
-  const hasActiveFilters = filters.bbox || filters.tags || filters.minScore > 0 || filters.availability;
+  const hasActiveFilters = filters.bbox || filters.tags || filters.minScore > 0;
 
   return (
     <div className="space-y-4">
@@ -95,25 +93,6 @@ export default function Filters({ filters, onFiltersChange, onRefresh }: Filters
           </div>
         </div>
 
-        {/* Availability */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Availability
-          </label>
-          <select
-            value={filters.availability}
-            onChange={(e) => onFiltersChange({ ...filters, availability: e.target.value })}
-            className="form-select text-sm"
-          >
-            <option value="">All</option>
-            {AVAILABILITY_OPTIONS.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
         {/* Active Filters Count */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -126,7 +105,6 @@ export default function Filters({ filters, onFiltersChange, onRefresh }: Filters
                   {filters.bbox && <div>• Bounding box set</div>}
                   {filters.tags && <div>• {filters.tags.split(',').length} tag(s)</div>}
                   {filters.minScore > 0 && <div>• Min score: {filters.minScore}</div>}
-                  {filters.availability && <div>• Availability: {filters.availability}</div>}
                 </div>
               ) : (
                 <div className="text-gray-500">No filters active</div>

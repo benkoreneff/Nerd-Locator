@@ -17,7 +17,7 @@ class ProfileBase(BaseModel):
     education_level: str
     skills: List[str]
     free_text: Optional[str] = None
-    availability: str = Field(..., pattern="^(immediate|24h|48h|unavailable)$")
+    availability: str = Field(..., pattern="^(available|allocated)$")
 
 # Request schemas
 class CivilianSubmitRequest(BaseModel):
@@ -25,14 +25,13 @@ class CivilianSubmitRequest(BaseModel):
     education_level: str
     skills: List[str]
     free_text: Optional[str] = None
-    availability: str = Field(..., pattern="^(immediate|24h|48h|unavailable)$")
     consent: bool = Field(..., description="Consent to data processing")
 
 class SearchRequest(BaseModel):
     bbox: Optional[List[float]] = Field(None, description="[min_lat, min_lon, max_lat, max_lon]")
     tags: Optional[List[str]] = None
     min_score: Optional[float] = Field(None, ge=0, le=100)
-    availability: Optional[str] = Field(None, pattern="^(immediate|24h|48h|unavailable)$")
+    availability: Optional[str] = Field(None, pattern="^(available|allocated)$")
     page: int = Field(1, ge=1)
     limit: int = Field(50, ge=1, le=100)
 

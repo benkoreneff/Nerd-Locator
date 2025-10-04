@@ -111,8 +111,9 @@ async def allocate_civilian(
     )
     db.add(new_allocation)
     
-    # Update profile status
+    # Update profile status and availability
     profile.status = "allocated"
+    profile.availability = "allocated"
     
     db.commit()
     db.refresh(new_allocation)

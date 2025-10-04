@@ -19,7 +19,7 @@ async def search_civilians(
     bbox: Optional[str] = Query(None, description="Comma-separated: min_lat,min_lon,max_lat,max_lon"),
     tags: Optional[str] = Query(None, description="Comma-separated tag list"),
     min_score: Optional[float] = Query(None, ge=0, le=100),
-    availability: Optional[str] = Query(None, pattern="^(immediate|24h|48h|unavailable)$"),
+    availability: Optional[str] = Query(None, pattern="^(available|allocated)$"),
     page: int = Query(1, ge=1),
     limit: int = Query(50, ge=1, le=100),
     current_user: dict = Depends(require_authority),
