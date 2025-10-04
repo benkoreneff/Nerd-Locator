@@ -186,6 +186,43 @@ function HeatmapLayer({ points }: { points: HeatmapResponse['points'] }) {
 }
 
 export default function AuthorityMap() {
+  // Helper function to calculate distance between two points
+  const calculateDistance = (point1: { lat: number; lon: number }, point2: { lat: number; lon: number }): string => {
+    const R = 6371; // Earth's radius in kilometers
+    const dLat = (point2.lat - point1.lat) * Math.PI / 180;
+    const dLon = (point2.lon - point1.lon) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(point1.lat * Math.PI / 180) * Math.cos(point2.lat * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c;
+    return `${distance.toFixed(1)}km`;
+  };
+
+  // Helper function to generate CSV content
+  const generateCSV = (results: SearchResult[]): string => {
+    const headers = ['Rank', 'ID', 'Status', 'Distance', 'Score', 'Skills', 'Tags', 'Education', 'Availability'];
+    const csvRows = [headers.join(',')];
+    
+    results.forEach((civilian, index) => {
+      const distance = searchCenter ? calculateDistance(searchCenter, { lat: civilian.lat, lon: civilian.lon }) : 'N/A';
+      const row = [
+        index + 1,
+        civilian.user_id,
+        civilian.status,
+        distance,
+        civilian.capability_score,
+        `"${civilian.skills.join('; ')}"`,
+        `"${civilian.tags.join('; ')}"`,
+        civilian.education_level,
+        civilian.availability
+      ];
+      csvRows.push(row.join(','));
+    });
+    
+    return csvRows.join('\n');
+  };
+
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -193,6 +230,12 @@ export default function AuthorityMap() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [heatmapData, setHeatmapData] = useState<HeatmapResponse | null>(null);
+  const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
+  
+  // Debug: Log view mode changes
+  useEffect(() => {
+    console.log('Current view mode:', viewMode);
+  }, [viewMode]);
   
   // Location selector state
   const [searchCenter, setSearchCenter] = useState<{ lat: number; lon: number } | null>(null);
@@ -412,6 +455,44 @@ export default function AuthorityMap() {
           </h2>
           
           <div className="flex items-center space-x-4">
+            {/* View Toggle */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1">
+              <div className="flex space-x-1">
+                <button
+                  onClick={() => {
+                    console.log('Switching to map view');
+                    setViewMode('map');
+                  }}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    viewMode === 'map'
+                      ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                  }`}
+                  title="Map View"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => {
+                    console.log('Switching to list view');
+                    setViewMode('list');
+                  }}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    viewMode === 'list'
+                      ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                  }`}
+                  title="List View"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
             <HeatmapToggle
               showHeatmap={showHeatmap}
               onToggle={setShowHeatmap}
@@ -493,12 +574,13 @@ export default function AuthorityMap() {
             </div>
           )}
 
-          <MapContainer
-            center={defaultMapCenter}
-            zoom={12}
-            bounds={mapBounds}
-            className="h-full w-full"
-          >
+          {viewMode === 'map' && (
+            <MapContainer
+              center={defaultMapCenter}
+              zoom={12}
+              bounds={mapBounds}
+              className="h-full w-full"
+            >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -606,6 +688,135 @@ export default function AuthorityMap() {
               </Marker>
             ))}
           </MapContainer>
+          )}
+
+          {/* List View */}
+          {viewMode === 'list' && (
+            <div className="h-full w-full bg-white">
+              <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Search Results ({results.length})
+                </h3>
+                <button
+                  onClick={() => {
+                    // Export CSV functionality
+                    const csvContent = generateCSV(results);
+                    const blob = new Blob([csvContent], { type: 'text/csv' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'civilians-search-results.csv';
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                  }}
+                  className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  Export CSV
+                </button>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Rank
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        ID
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Distance
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Score
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Skills
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Tags
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {results.map((civilian, index) => (
+                      <tr key={civilian.user_id} className="hover:bg-gray-50">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          #{index + 1}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                          #{civilian.user_id}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            civilian.status === 'available' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {civilian.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {searchCenter ? calculateDistance(searchCenter, { lat: civilian.lat, lon: civilian.lon }) : 'N/A'}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <div className="flex items-center">
+                            <span className="font-semibold">{civilian.capability_score}</span>
+                            <span className="text-gray-500 ml-1">/100</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <div className="flex flex-wrap gap-1">
+                            {civilian.skills.slice(0, 3).map((skill, skillIndex) => (
+                              <span key={skillIndex} className="inline-flex px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+                                {skill}
+                              </span>
+                            ))}
+                            {civilian.skills.length > 3 && (
+                              <span className="inline-flex px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                                +{civilian.skills.length - 3}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <div className="flex flex-wrap gap-1">
+                            {civilian.tags.slice(0, 2).map((tag, tagIndex) => (
+                              <span key={tagIndex} className="inline-flex px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded">
+                                {tag}
+                              </span>
+                            ))}
+                            {civilian.tags.length > 2 && (
+                              <span className="inline-flex px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                                +{civilian.tags.length - 2}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => handleCivilianClick(civilian.user_id)}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              View Details
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Drawer as sidebar */}
