@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { civilianApi, OfflineQueue } from '../lib/api';
-import { CivilianMeResponse, CivilianSubmitRequest, EDUCATION_LEVELS } from '../types';
+import { CivilianMeResponse, CivilianSubmitRequest, EDUCATION_LEVELS, INDUSTRY_OPTIONS, INDUSTRY_MAPPING, ResourceSpec } from '../types';
+import ToolsAssets from '../components/ToolsAssets';
 
 export default function CivilianForm() {
   const [profile, setProfile] = useState<CivilianMeResponse | null>(null);
@@ -12,9 +13,11 @@ export default function CivilianForm() {
 
   // Form state
   const [educationLevel, setEducationLevel] = useState('');
+  const [industry, setIndustry] = useState('');
   const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState('');
   const [freeText, setFreeText] = useState('');
+  const [resources, setResources] = useState<ResourceSpec[]>([]);
   const [consent, setConsent] = useState(false);
 
   // Load existing profile
@@ -30,6 +33,10 @@ export default function CivilianForm() {
       // Pre-fill form if profile exists
       if (response.data.profile) {
         setEducationLevel(response.data.profile.education_level);
+        // Map backend key to display name for the UI
+        const industryKey = response.data.profile.industry;
+        const industryDisplayName = industryKey ? Object.keys(INDUSTRY_MAPPING).find(key => INDUSTRY_MAPPING[key] === industryKey) || '' : '';
+        setIndustry(industryDisplayName);
         setSkills(response.data.profile.skills);
         setFreeText(response.data.profile.free_text || '');
       }
@@ -58,8 +65,8 @@ export default function CivilianForm() {
       return;
     }
 
-    if (!educationLevel || skills.length === 0) {
-      setError('Please fill in all required fields');
+    if (!educationLevel || !industry) {
+      setError('Please fill in all required fields (Education Level and Industry)');
       return;
     }
 
@@ -70,8 +77,10 @@ export default function CivilianForm() {
     const submissionData: CivilianSubmitRequest = {
       submission_id: uuidv4(),
       education_level: educationLevel,
+      industry: industry ? INDUSTRY_MAPPING[industry] : undefined,
       skills,
       free_text: freeText || undefined,
+      resources: resources.length > 0 ? resources : undefined,
       consent: true,
     };
 
@@ -156,28 +165,51 @@ export default function CivilianForm() {
             </select>
           </div>
 
-          {/* Skills */}
+          {/* Industry */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Skills <span className="text-red-500">*</span>
+              Industry <span className="text-red-500">*</span>
             </label>
-            <div className="flex space-x-2 mb-2">
-              <input
-                type="text"
-                value={skillInput}
-                onChange={(e) => setSkillInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleSkillAdd())}
-                placeholder="Add a skill..."
-                className="form-input flex-1"
-              />
-              <button
-                type="button"
-                onClick={handleSkillAdd}
-                className="btn btn-secondary"
-              >
-                Add
-              </button>
-            </div>
+            <select
+              value={industry}
+              onChange={(e) => setIndustry(e.target.value)}
+              className="form-select"
+            >
+              <option value="">Select your primary industry</option>
+              {INDUSTRY_OPTIONS.map(option => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Skills */}
+          {industry && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Skills
+              </label>
+              <div className="flex space-x-2 mb-2">
+                <input
+                  type="text"
+                  value={skillInput}
+                  onChange={(e) => setSkillInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleSkillAdd())}
+                  placeholder="Add a skill (inside or outside your industry)..."
+                  className="form-input flex-1"
+                />
+                <button
+                  type="button"
+                  onClick={handleSkillAdd}
+                  className="btn btn-secondary"
+                >
+                  Add
+                </button>
+              </div>
+              <p className="text-sm text-gray-600 mb-2">
+                List relevant skills from your chosen industry or any other areas where you could contribute.
+              </p>
             <div className="flex flex-wrap gap-2">
               {skills.map(skill => (
                 <span
@@ -194,7 +226,14 @@ export default function CivilianForm() {
                 </span>
               ))}
             </div>
-          </div>
+            </div>
+          )}
+
+          {/* Tools & Assets */}
+          <ToolsAssets 
+            resources={resources}
+            onResourcesChange={setResources}
+          />
 
           {/* Free Text */}
           <div>

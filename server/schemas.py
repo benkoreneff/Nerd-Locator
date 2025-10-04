@@ -15,16 +15,26 @@ class UserBase(BaseModel):
 
 class ProfileBase(BaseModel):
     education_level: str
+    industry: Optional[str] = None
     skills: List[str]
     free_text: Optional[str] = None
     availability: str = Field(..., pattern="^(available|allocated)$")
 
 # Request schemas
+# Resource schemas
+class ResourceSpec(BaseModel):
+    category: str
+    subtype: str
+    quantity: Optional[int] = None
+    specs: Optional[Dict[str, Any]] = None
+
 class CivilianSubmitRequest(BaseModel):
     submission_id: str
     education_level: str
+    industry: Optional[str] = None
     skills: List[str]
     free_text: Optional[str] = None
+    resources: Optional[List[ResourceSpec]] = None
     consent: bool = Field(..., description="Consent to data processing")
 
 class SearchRequest(BaseModel):
@@ -58,6 +68,7 @@ class UserResponse(BaseModel):
 class ProfileResponse(BaseModel):
     id: int
     education_level: str
+    industry: Optional[str] = None
     skills: List[str]
     free_text: Optional[str] = None
     availability: str

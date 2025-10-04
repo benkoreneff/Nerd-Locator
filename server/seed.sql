@@ -24,11 +24,11 @@ INSERT INTO profiles (user_id, education_level, skills, free_text, availability,
 (8, 'masters', '["management", "coordination", "public relations", "media"]', 'Former crisis manager with experience in coordinating emergency responses and public communication.', '24h', 82.0, '["leadership", "communication"]', 'available');
 
 -- Insert sample resources
-INSERT INTO resources (user_id, type, specs_json, lat, lon, available) VALUES
-(3, 'vehicle', '{"type": "excavator", "capacity": "heavy", "fuel_type": "diesel"}', 60.1708, 24.9439, 1),
-(5, 'equipment', '{"type": "radio_network", "range": "50km", "channels": 20}', 60.1649, 24.9271, 1),
-(7, 'vehicle', '{"type": "truck", "capacity": "medium", "fuel_type": "diesel"}', 60.1699, 24.9414, 1),
-(7, 'vehicle', '{"type": "van", "capacity": "small", "fuel_type": "gasoline"}', 60.1699, 24.9414, 1);
+INSERT INTO resources (user_id, category, subtype, quantity, specs_json, available) VALUES
+(3, 'heavy', 'forklift', 1, '{"capacity": "heavy", "fuel_type": "diesel"}', 1),
+(5, 'comms', 'vhf_uhf', 1, '{"range": "50km", "channels": 20}', 1),
+(7, 'transport', 'van_truck', 1, '{"capacity": "medium", "fuel_type": "diesel", "cargo_m3": 15}', 1),
+(7, 'transport', 'van_truck', 1, '{"capacity": "small", "fuel_type": "gasoline", "cargo_m3": 8}', 1);
 
 -- Insert sample requests
 INSERT INTO requests (authority_id, type, user_id, message, status) VALUES

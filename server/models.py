@@ -32,6 +32,7 @@ class Profile(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
     education_level = Column(String(100), nullable=False)
+    industry = Column(String(100), nullable=True)  # Industry dropdown selection
     skills = Column(JSON, nullable=False)  # List of skills
     free_text = Column(Text, nullable=True)
     availability = Column(String(50), nullable=False)  # immediate/24h/48h/unavailable
@@ -44,17 +45,17 @@ class Profile(Base):
     user = relationship("User", back_populates="profile")
 
 class Resource(Base):
-    """Resource model - optional for MVP, stores specific resources"""
+    """Resource model - stores tools and assets from civilian submissions"""
     __tablename__ = "resources"
     
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    type = Column(String(100), nullable=False)  # vehicle/equipment/facility
-    specs_json = Column(JSON, nullable=True)  # Resource specifications
-    lat = Column(Float, nullable=True)
-    lon = Column(Float, nullable=True)
+    category = Column(String(100), nullable=False)  # fabrication/power/workshop/transport/drone/heavy/comms
+    subtype = Column(String(100), nullable=False)  # 3d_printer/generator/van/etc
+    quantity = Column(Integer, nullable=True)  # Optional quantity
+    specs_json = Column(JSON, nullable=True)  # Resource specifications (key/value pairs)
     available = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=func.now())
+    last_updated = Column(DateTime, default=func.now(), onupdate=func.now())
     
     # Relationships
     user = relationship("User", back_populates="resources")

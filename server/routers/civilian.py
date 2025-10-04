@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
 from db import get_db
-from models import User, Profile
+from models import User, Profile, Resource
 from schemas import CivilianSubmitRequest, CivilianMeResponse, UserResponse, ProfileResponse
 from auth import require_civilian, get_user_id_hash
 from services.tagger import tagger
@@ -60,6 +60,7 @@ async def get_me(
         profile_response = ProfileResponse(
             id=profile.id,
             education_level=profile.education_level,
+            industry=profile.industry,
             skills=profile.skills,
             free_text=profile.free_text,
             availability=profile.availability,
@@ -113,35 +114,60 @@ async def submit_profile(
     if existing_profile:
         # Update existing profile
         existing_profile.education_level = request.education_level
+        existing_profile.industry = request.industry
         existing_profile.skills = request.skills
         existing_profile.free_text = request.free_text
         # Availability is automatically set to "available" when profile is submitted
         existing_profile.availability = "available"
         
         # Regenerate tags and score
+        resources_data = [r.dict() for r in request.resources] if request.resources else []
         tags, score = tagger.generate_tags_and_score(
             education_level=request.education_level,
             skills=request.skills,
             free_text=request.free_text or "",
-            availability="available"
+            availability="available",
+            resources=resources_data,
+            industry=request.industry
         )
         existing_profile.tags_json = tags
         existing_profile.capability_score = score
+        
+        # Handle resources - replace existing ones
+        if request.resources:
+            # Delete existing resources for this user
+            db.query(Resource).filter(Resource.user_id == user.id).delete()
+            
+            # Add new resources
+            for resource_data in request.resources:
+                resource = Resource(
+                    user_id=user.id,
+                    category=resource_data.category,
+                    subtype=resource_data.subtype,
+                    quantity=resource_data.quantity,
+                    specs_json=resource_data.specs or {},
+                    available=True
+                )
+                db.add(resource)
         
         profile = existing_profile
         db.commit()
     else:
         # Create new profile
+        resources_data = [r.dict() for r in request.resources] if request.resources else []
         tags, score = tagger.generate_tags_and_score(
             education_level=request.education_level,
             skills=request.skills,
             free_text=request.free_text or "",
-            availability="available"
+            availability="available",
+            resources=resources_data,
+            industry=request.industry
         )
         
         profile = Profile(
             user_id=user.id,
             education_level=request.education_level,
+            industry=request.industry,
             skills=request.skills,
             free_text=request.free_text,
             availability="available",
@@ -152,6 +178,20 @@ async def submit_profile(
         db.add(profile)
         db.commit()
         db.refresh(profile)
+        
+        # Handle resources for new profile
+        if request.resources:
+            for resource_data in request.resources:
+                resource = Resource(
+                    user_id=user.id,
+                    category=resource_data.category,
+                    subtype=resource_data.subtype,
+                    quantity=resource_data.quantity,
+                    specs_json=resource_data.specs or {},
+                    available=True
+                )
+                db.add(resource)
+            db.commit()
     
     # Log the action
     audit.log_action(

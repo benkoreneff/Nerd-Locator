@@ -68,6 +68,62 @@ categories:
       "48h": 3
       unavailable: 0
 
+# Resource categories and weights for tools/assets
+resources:
+  fabrication:
+    weight: 0.20
+    items:
+      "3d_printer": 6
+      "cnc": 8
+      "laser": 6
+  power:
+    weight: 0.25
+    items:
+      "generator": 10
+      "battery_bank": 6
+      "solar": 4
+  workshop:
+    weight: 0.15
+    items:
+      "garage": 4
+      "warehouse": 8
+  transport:
+    weight: 0.15
+    items:
+      "van_truck": 5
+      "trailer": 3
+      "offroad": 3
+  drone:
+    weight: 0.10
+    items:
+      "fpv": 4
+      "longrange": 6
+      "rc_air": 3
+  heavy:
+    weight: 0.10
+    items:
+      "forklift": 4
+      "welder": 5
+      "tools": 2
+  comms:
+    weight: 0.05
+    items:
+      "ham_license": 4
+      "vhf_uhf": 3
+
+# Industry categories and weights for dropdown selection
+industries:
+  "healthcare_medical": 4
+  "construction_trades": 5
+  "electrical_power": 4
+  "logistics_transport": 3
+  "it_cybersecurity": 4
+  "communications_radio": 3
+  "manufacturing_fabrication": 4
+  "public_safety_rescue": 5
+  "agriculture_rural": 3
+  "education_community": 3
+
 # Education level scoring
 education_scores:
   "doctoral": 25
