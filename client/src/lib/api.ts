@@ -273,4 +273,29 @@ export const skillsApi = {
   }
 };
 
+// Geocoding API
+export const geocodeApi = {
+  async searchPlaces(query: string, limit: number = 5): Promise<GeocodeResult[]> {
+    const response = await api.get(`/geocode/geocode`, {
+      params: { q: query, limit }
+    });
+    return response.data;
+  },
+
+  async reverseGeocode(lat: number, lon: number): Promise<GeocodeResult> {
+    const response = await api.get(`/geocode/geocode/reverse`, {
+      params: { lat, lon }
+    });
+    return response.data;
+  }
+};
+
+// Advanced Search API
+export const advancedSearchApi = {
+  async search(request: AdvancedSearchRequest): Promise<AdvancedSearchResponse> {
+    const response = await api.post('/search/advanced', request);
+    return response.data;
+  }
+};
+
 export default api;

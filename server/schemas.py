@@ -51,6 +51,37 @@ class SearchRequest(BaseModel):
     page: int = Field(1, ge=1)
     limit: int = Field(50, ge=1, le=100)
 
+class AdvancedSearchRequest(BaseModel):
+    # Location options (mutually exclusive)
+    center_lat: Optional[float] = Field(None, description="Center latitude for radius search")
+    center_lon: Optional[float] = Field(None, description="Center longitude for radius search")
+    radius_km: Optional[float] = Field(None, ge=0.1, le=500, description="Search radius in kilometers")
+    bbox: Optional[List[float]] = Field(None, description="[min_lat, min_lon, max_lat, max_lon]")
+    polygon: Optional[Dict[str, Any]] = Field(None, description="GeoJSON polygon for complex areas")
+    use_map_center: Optional[bool] = Field(None, description="Use current map center")
+    
+    # Basic filters
+    status: Optional[List[str]] = Field(None, description="Filter by status (available, allocated)")
+    skills: Optional[List[str]] = Field(None, description="Skill names for keyword filtering")
+    
+    # Advanced filters
+    min_levels: Optional[Dict[str, int]] = Field(None, description="Minimum level for each skill")
+    include_tags: Optional[List[str]] = Field(None, description="Tags that must be present")
+    exclude_tags: Optional[List[str]] = Field(None, description="Tags that must not be present")
+    
+    # Legacy fields for backward compatibility
+    skill_levels: Optional[Dict[str, int]] = Field(None, description="Minimum level for each skill (legacy)")
+    required_skills: Optional[List[str]] = Field(None, description="Skills that must be present (legacy)")
+    preferred_skills: Optional[List[str]] = Field(None, description="Skills that get bonus scoring (legacy)")
+    tags: Optional[List[str]] = Field(None, description="Include/exclude tags (legacy)")
+    min_capability_score: Optional[float] = Field(None, ge=0, le=100)
+    
+    # Pagination and sorting
+    page: int = Field(1, ge=1)
+    limit: int = Field(50, ge=1, le=100)
+    sort: str = Field("combined", description="Sort by: distance, capability, combined")
+    sort_by: str = Field("distance", description="Sort by: distance, score, combined (legacy)")
+
 class RequestCreateRequest(BaseModel):
     type: str = Field(..., pattern="^(info|allocate)$")
     user_id: int
@@ -105,6 +136,16 @@ class SearchResponse(BaseModel):
     total: int
     page: int
     limit: int
+    search_geometry: Optional[Dict[str, Any]] = Field(None, description="GeoJSON geometry of search area")
+
+class AdvancedSearchResponse(BaseModel):
+    results: List[SearchResult]
+    total: int
+    page: int
+    limit: int
+    search_geometry: Optional[Dict[str, Any]] = Field(None, description="GeoJSON geometry of search area")
+    search_center: Optional[Dict[str, float]] = Field(None, description="Search center point")
+    search_radius_km: Optional[float] = Field(None, description="Search radius in kilometers")
 
 class DetailResponse(BaseModel):
     user: UserResponse

@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 import logging
 
 from db import engine, create_tables, get_db
-from routers import civilian, search, allocate, stats, admin, skills
+from routers import civilian, search, allocate, stats, admin, skills, geocode
 from auth import setup_demo_auth
 
 # Configure logging
@@ -60,6 +60,7 @@ app.include_router(allocate.router, prefix="/allocate", tags=["allocate"])
 app.include_router(stats.router, prefix="/stats", tags=["stats"])
 app.include_router(admin.router, prefix="/admin", tags=["admin"])
 app.include_router(skills.router, prefix="/skills", tags=["skills"])
+app.include_router(geocode.router, prefix="/geocode", tags=["geocode"])
 
 @app.get("/")
 async def root():

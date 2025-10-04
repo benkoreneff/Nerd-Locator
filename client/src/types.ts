@@ -67,6 +67,41 @@ export interface SkillOption {
   canonical: boolean;
 }
 
+export interface GeocodeResult {
+  display_name: string;
+  lat: number;
+  lon: number;
+  type: string;
+  confidence: number;
+}
+
+export interface AdvancedSearchRequest {
+  center_lat?: number;
+  center_lon?: number;
+  radius_km?: number;
+  bbox?: [number, number, number, number];
+  polygon?: any;
+  skill_levels?: Record<string, number>;
+  required_skills?: string[];
+  preferred_skills?: string[];
+  status?: string[];
+  min_capability_score?: number;
+  tags?: string[];
+  page?: number;
+  limit?: number;
+  sort_by?: string;
+}
+
+export interface AdvancedSearchResponse {
+  results: SearchResult[];
+  total: number;
+  page: number;
+  limit: number;
+  search_geometry?: any;
+  search_center?: { lat: number; lon: number };
+  search_radius_km?: number;
+}
+
 export type Level0to5 = 0 | 1 | 2 | 3 | 4 | 5;
 export type QuestionId = string;
 
