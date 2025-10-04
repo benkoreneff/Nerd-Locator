@@ -121,21 +121,6 @@ function App() {
           </Routes>
         </main>
 
-        {/* Footer */}
-        <footer className="bg-white border-t border-gray-200 mt-auto">
-          <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-            <div className="text-center text-sm text-gray-500">
-              <p>Civitas - Demo Version</p>
-              <p className="mt-1">
-                {navigator.onLine ? (
-                  <span className="text-green-600">● Online</span>
-                ) : (
-                  <span className="text-orange-600">● Offline - Requests queued</span>
-                )}
-              </p>
-            </div>
-          </div>
-        </footer>
       </div>
     </Router>
   );

@@ -105,17 +105,23 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
 
   // Debounced tag search
   const searchTags = useCallback(async (query: string) => {
+    console.log('searchTags called with query:', query);
     if (query.length < 1) {
+      console.log('Query too short, clearing tag suggestions');
       setTagSuggestions([]);
+      setShowTagSuggestions(false);
       return;
     }
 
     try {
+      console.log('Making API call to /search/tags/suggest with query:', query);
       const response = await api.get('/search/tags/suggest', {
         params: { q: query }
       });
+      console.log('Tag search API response:', response.data);
       setTagSuggestions(response.data);
       setShowTagSuggestions(true);
+      console.log('Tag suggestions set, showing dropdown');
     } catch (err) {
       console.error('Tag search error:', err);
     }
@@ -154,6 +160,7 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
   // Handle tag search input
   const handleTagSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
+    console.log('Tag search input changed:', query);
     setTagSearchQuery(query);
     
     if (tagTimeoutRef.current) {
@@ -161,6 +168,7 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
     }
     
     tagTimeoutRef.current = setTimeout(() => {
+      console.log('Triggering tag search for:', query);
       searchTags(query);
     }, 300);
   };
@@ -199,8 +207,16 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
   // Handle tag selection
   const handleTagSelect = (tag: string) => {
     console.log('Selecting tag:', tag);
+    console.log('Current includeTags:', includeTags);
     if (!includeTags.includes(tag)) {
-      setIncludeTags(prev => [...prev, tag]);
+      console.log('Adding tag to includeTags:', tag);
+      setIncludeTags(prev => {
+        const newTags = [...prev, tag];
+        console.log('New includeTags:', newTags);
+        return newTags;
+      });
+    } else {
+      console.log('Tag already exists in includeTags');
     }
     setTagSearchQuery('');
     setShowTagSuggestions(false);
@@ -424,8 +440,16 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
         }
       }
       
+      // For tags, check if clicking outside the input AND not on a suggestion button
       if (tagInputRef.current && !tagInputRef.current.contains(target)) {
-        setShowTagSuggestions(false);
+        // Check if the click is on a tag suggestion button (don't close if it is)
+        const isTagSuggestionClick = target instanceof HTMLElement && 
+          target.closest('.tag-suggestion-dropdown');
+        
+        if (!isTagSuggestionClick) {
+          console.log('Clicking outside tag input, closing suggestions');
+          setShowTagSuggestions(false);
+        }
       }
     };
 
@@ -711,8 +735,11 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
                       className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
                     />
                     
-                    {showTagSuggestions && tagSuggestions.length > 0 && (
-                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-auto">
+                    {(() => {
+                      console.log('Tag dropdown condition check:', { showTagSuggestions, tagSuggestionsLength: tagSuggestions.length });
+                      return showTagSuggestions && tagSuggestions.length > 0;
+                    })() && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-auto tag-suggestion-dropdown">
                         {tagSuggestions.map((tag) => (
                           <button
                             key={`include-${tag}`}

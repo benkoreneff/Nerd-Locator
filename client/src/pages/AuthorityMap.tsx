@@ -201,6 +201,7 @@ export default function AuthorityMap() {
   const [mapCenter, setMapCenter] = useState<{ lat: number; lon: number } | null>(null);
   const [currentSearchMethod, setCurrentSearchMethod] = useState<string | null>(null);
   const [currentSearchDetails, setCurrentSearchDetails] = useState<string | null>(null);
+  const [currentSearchParams, setCurrentSearchParams] = useState<any>(null);
   const mapRef = useRef<L.Map | null>(null);
   
   // Filter state
@@ -250,7 +251,14 @@ export default function AuthorityMap() {
 
   const handleCivilianClick = async (userId: number) => {
     try {
-      const response = await searchApi.getDetail(userId);
+      // Pass current search context for query-relevant scoring
+      const searchContext = currentSearchParams ? {
+        skills: currentSearchParams.skills,
+        include_tags: currentSearchParams.include_tags,
+        search_query: currentSearchParams.search_query
+      } : undefined;
+      
+      const response = await searchApi.getDetail(userId, searchContext);
       setSelectedCivilian(response.data);
       setDrawerOpen(true);
     } catch (err: any) {
@@ -323,10 +331,12 @@ export default function AuthorityMap() {
     setLoading(true);
     setError(null);
     
+    // Store current search parameters for detail calls
+    setCurrentSearchParams(searchParams);
+    
     try {
       let request: AdvancedSearchRequest = {
         ...searchParams,
-        status: ['available'], // Default to available only
         page: 1,
         limit: 50,
         sort_by: 'distance'

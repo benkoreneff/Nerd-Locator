@@ -14,11 +14,11 @@ INSERT INTO users (national_id_hash, full_name, dob, address, lat, lon) VALUES
 
 -- Insert sample profiles with generated tags and scores
 INSERT INTO profiles (user_id, education_level, skills, free_text, availability, capability_score, tags_json, status) VALUES
-(1, 'masters', '["medical", "emergency", "first aid", "ambulance"]', 'Experienced paramedic with 10 years in emergency services. Certified in advanced life support.', 'immediate', 85.0, '["medical"]', 'available'),
+(1, 'masters', '["cybersecurity", "network security", "penetration testing", "medical"]', 'Experienced cybersecurity specialist and paramedic with 10 years in emergency services. Certified in advanced life support and network security.', 'allocated', 85.0, '["cybersecurity", "medical", "technical"]', 'allocated'),
 (2, 'bachelors', '["translation", "communication", "english", "russian"]', 'Professional translator fluent in multiple languages. Experience in crisis communication.', '24h', 65.0, '["communication"]', 'available'),
 (3, 'vocational', '["construction", "heavy machinery", "safety", "logistics"]', 'Construction supervisor with access to heavy machinery and vehicles. Safety certified.', 'immediate', 70.0, '["technical", "logistics"]', 'available'),
 (4, 'masters', '["psychology", "counseling", "mental health", "crisis intervention"]', 'Clinical psychologist specializing in trauma and crisis intervention. Available for mental health support.', '48h', 75.0, '["medical"]', 'available'),
-(5, 'bachelors', '["IT", "network administration", "communication systems", "radio"]', 'IT specialist with expertise in communication systems and radio networks. Can set up emergency communications.', 'immediate', 80.0, '["technical", "communication"]', 'available'),
+(5, 'bachelors', '["IT", "network administration", "communication systems", "radio"]', 'IT specialist with expertise in communication systems and radio networks. Can set up emergency communications.', 'allocated', 80.0, '["technical", "communication", "cybersecurity"]', 'allocated'),
 (6, 'associate', '["nursing", "first aid", "medical equipment", "hospital"]', 'Registered nurse with experience in emergency medicine. Can provide medical support and coordinate with hospitals.', '24h', 78.0, '["medical"]', 'available'),
 (7, 'high_school', '["driving", "transport", "logistics", "fuel"]', 'Professional driver with commercial license. Access to multiple vehicles and fuel resources.', 'immediate', 55.0, '["logistics"]', 'available'),
 (8, 'masters', '["management", "coordination", "public relations", "media"]', 'Former crisis manager with experience in coordinating emergency responses and public communication.', '24h', 82.0, '["leadership", "communication"]', 'available');

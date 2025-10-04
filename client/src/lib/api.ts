@@ -88,8 +88,33 @@ export const searchApi = {
   }): Promise<AxiosResponse<SearchResponse>> =>
     api.get('/search/', { params }),
 
-  getDetail: (userId: number): Promise<AxiosResponse<DetailResponse>> =>
-    api.get(`/search/detail/${userId}`),
+  getDetail: (
+    userId: number, 
+    searchContext?: {
+      skills?: string[];
+      include_tags?: string[];
+      search_query?: string;
+    }
+  ): Promise<AxiosResponse<DetailResponse>> => {
+    const params: any = {};
+    if (searchContext?.skills) {
+      // FastAPI expects array parameters to be passed multiple times
+      params.skills = searchContext.skills;
+    }
+    if (searchContext?.include_tags) {
+      params.include_tags = searchContext.include_tags;
+    }
+    if (searchContext?.search_query) {
+      params.search_query = searchContext.search_query;
+    }
+    
+    return api.get(`/search/detail/${userId}`, { 
+      params,
+      paramsSerializer: {
+        indexes: null // This allows arrays to be serialized as multiple params
+      }
+    });
+  },
 };
 
 // Allocation API

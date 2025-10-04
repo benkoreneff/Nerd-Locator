@@ -57,6 +57,84 @@ categories:
       "48h": 4
       unavailable: 0
 
+  # Defense & Critical Infrastructure Categories (High Priority)
+  drones:
+    weight: 0.30
+    keywords:
+      en: [drone, uav, quadcopter, multirotor, fpv, autonomous, remote control, rc, aerial, surveillance, reconnaissance, pilot]
+      fi: [drooni, lennokki, quadcopter, fpv, automaattinen, etäohjaus, ilmainen, tarkkailu, tiedustelu, pilotti]
+    availability_bonus:
+      immediate: 25
+      "24h": 20
+      "48h": 15
+      unavailable: 0
+
+  automation:
+    weight: 0.28
+    keywords:
+      en: [automation, robotics, robot, automated, plc, scada, industrial, manufacturing, robotic, autonomous systems]
+      fi: [automaatio, robotiikka, robotti, automaattinen, plc, scada, teollisuus, valmistus, robottisysteemit]
+    availability_bonus:
+      immediate: 22
+      "24h": 18
+      "48h": 12
+      unavailable: 0
+
+  electrical:
+    weight: 0.25
+    keywords:
+      en: [electrical, electrician, power, grid, generator, solar, battery, inverter, electrical work, power systems, high voltage]
+      fi: [sähkö, sähkömies, voima, verkko, generaattori, aurinko, akku, muunnin, sähkötyö, voimajärjestelmät]
+    availability_bonus:
+      immediate: 20
+      "24h": 16
+      "48h": 10
+      unavailable: 0
+
+  mechanical:
+    weight: 0.25
+    keywords:
+      en: [mechanical, mechanic, engine, motor, hydraulic, pneumatic, machinery, repair, maintenance, diesel, heavy equipment]
+      fi: [mekaaninen, mekaanikko, moottori, hydrauliikka, paineilma, koneet, korjaus, huolto, diesel, raskas kalusto]
+    availability_bonus:
+      immediate: 20
+      "24h": 16
+      "48h": 10
+      unavailable: 0
+
+  cybersecurity:
+    weight: 0.28
+    keywords:
+      en: [cybersecurity, cyber, security, network security, information security, penetration testing, firewall, encryption, hacking, digital security]
+      fi: [tietoturva, kyber, turvallisuus, verkonturvallisuus, tietoturvallisuus, penetraatiotestaus, palomuuri, salaus, hakkerointi]
+    availability_bonus:
+      immediate: 22
+      "24h": 18
+      "48h": 12
+      unavailable: 0
+
+  defense:
+    weight: 0.30
+    keywords:
+      en: [defense, military, army, navy, air force, veteran, combat, tactical, strategic, military experience, soldier, officer]
+      fi: [puolustus, sotilaallinen, armeija, laivasto, ilmavoimat, veteraani, taistelu, taktinen, strateginen, sotilaskokemus]
+    availability_bonus:
+      immediate: 25
+      "24h": 20
+      "48h": 15
+      unavailable: 0
+
+  surveillance:
+    weight: 0.26
+    keywords:
+      en: [surveillance, monitoring, observation, intelligence, reconnaissance, tracking, detection, radar, sensors, monitoring systems]
+      fi: [tarkkailu, valvonta, havainnointi, tiedustelu, seuranta, havainto, tutka, anturit, valvontajärjestelmät]
+    availability_bonus:
+      immediate: 21
+      "24h": 17
+      "48h": 11
+      unavailable: 0
+
   general:
     weight: 0.15
     keywords:
@@ -113,16 +191,27 @@ resources:
 
 # Industry categories and weights for dropdown selection
 industries:
+  # Defense & Critical Infrastructure (High Priority)
+  "defense_military": 8
+  "drones_uavs": 7
+  "automation_robotics": 6
+  "cybersecurity": 6
+  "electrical_power": 5
+  "mechanical_engineering": 5
+  "surveillance_intelligence": 6
+  
+  # Traditional Emergency Services
   "healthcare_medical": 4
   "construction_trades": 5
-  "electrical_power": 4
   "logistics_transport": 3
-  "it_cybersecurity": 4
-  "communications_radio": 3
+  "communications_radio": 4
   "manufacturing_fabrication": 4
   "public_safety_rescue": 5
+  
+  # Other Industries
   "agriculture_rural": 3
   "education_community": 3
+  "technology": 4
 
 # Education level scoring
 education_scores:

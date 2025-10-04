@@ -33,6 +33,7 @@ Backend (FastAPI):
 SQLite database with SQLAlchemy ORM
 Pydantic v2 schemas for validation
 Deterministic tagging system (rules.yml)
+LLM-powered intelligent tag extraction (Ollama + phi3:mini)
 Mock authentication for demo mode
 RESTful API with comprehensive endpoints
 Frontend (React + TypeScript):
@@ -191,6 +192,41 @@ python server/main.py  # Creates fresh database
 
 # Load seed data
 curl -X POST http://localhost:8000/admin/seed
+```
+
+### LLM-Powered Tag Extraction (Optional)
+
+Civitas includes intelligent tag extraction using local LLM (Ollama) for enhanced civilian profile analysis:
+
+**Setup Ollama (Recommended):**
+```bash
+# Run the setup script
+./setup_ollama.sh
+
+# Or manually:
+# 1. Install Ollama: curl -fsSL https://ollama.com/install.sh | sh
+# 2. Start service: ollama serve
+# 3. Pull model: ollama pull phi3:mini
+```
+
+**Features:**
+- ✅ **Intelligent tag extraction** from free-text profiles
+- ✅ **Local processing** - no data leaves your server
+- ✅ **Automatic fallback** to regex-based tagging if LLM unavailable
+- ✅ **Context-aware** - considers education, skills, and availability
+- ✅ **Emergency-focused** - extracts relevant tags for crisis coordination
+
+**How it works:**
+1. When civilians submit profiles with substantial free-text
+2. LLM analyzes the text for emergency-relevant skills and capabilities
+3. Extracts 3-5 meaningful tags (e.g., "medical", "senior", "emergency_ready")
+4. Combines with rule-based tags for comprehensive profiling
+5. Falls back to regex patterns if Ollama is unavailable
+
+**Test the LLM integration:**
+```bash
+cd server
+python test_llm_tagger.py
 ```
 
 ### Environment Variables
