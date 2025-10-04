@@ -107,14 +107,15 @@ export interface AuthState {
 }
 
 export const EDUCATION_LEVELS = [
-  'high_school',
-  'vocational', 
-  'certificate',
-  'associate',
-  'bachelors',
-  'masters',
-  'doctoral',
-  'other'
+  'No education',
+  'Primary education',
+  'Lower secondary education',
+  'Upper secondary education',
+  'Vocational qualification',
+  "Bachelor's degree",
+  "Master's degree",
+  'Doctoral degree',
+  'Other'
 ] as const;
 
 export const AVAILABILITY_OPTIONS = [
