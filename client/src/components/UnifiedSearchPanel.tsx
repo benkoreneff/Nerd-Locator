@@ -462,6 +462,12 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
       <div>
         <h3 className="text-lg font-medium text-gray-900 mb-4">Search Civilians</h3>
         
+        {/* Two-column layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        {/* First column */}
+        <div className="space-y-4">
+        
         {/* 1. Location */}
         <div className="mb-4">
           <h4 className="text-sm font-medium text-gray-700 mb-2">Location</h4>
@@ -606,7 +612,13 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
             </label>
           </div>
         </div>
-
+        
+        {/* End of first column */}
+        </div>
+        
+        {/* Second column */}
+        <div className="space-y-4">
+        
         {/* 4. Skills (typeahead) */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">Skills</label>
@@ -616,7 +628,7 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
               type="text"
               value={skillSearchQuery}
               onChange={handleSkillSearchChange}
-              placeholder="Add required skills..."
+              placeholder="Add required skill..."
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-500"
             />
             
@@ -807,6 +819,12 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
             </div>
           )}
         </div>
+        
+        {/* End of second column */}
+        </div>
+        
+        {/* End of grid */}
+        </div>
 
         {/* Error Display */}
         {error && (
@@ -825,7 +843,7 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
           type="button"
           onClick={handleSearch}
           disabled={loading}
-          className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
+          className={`w-full px-4 py-2 rounded-lg font-medium transition-colors mt-4 ${
             (locationMode || searchQuery.trim()) && !loading
               ? 'bg-blue-600 text-white hover:bg-blue-700'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
