@@ -366,38 +366,42 @@ async def search_advanced(
         lat_offset = (int(user_hash[:4], 16) / 65535.0 - 0.5) * 0.02
         lon_offset = (int(user_hash[4:8], 16) / 65535.0 - 0.5) * 0.02
         
-        # Calculate query-relevant capability score
-        civilian_data = {
-            "education_level": profile.education_level,
-            "skills": profile.skills,
-            "free_text": profile.free_text or "",
-            "availability": profile.availability,
-            "industry": profile.industry,
-            "tags": profile.tags_json or []
-        }
+        # Use static capability score by default, or query-relevant if search context provided
+        capability_score = profile.capability_score
         
-        # Build search query from request parameters
-        search_query_parts = []
-        if request.skills:
-            search_query_parts.extend(request.skills)
-        if request.include_tags:
-            search_query_parts.extend(request.include_tags)
-        search_query = " ".join(search_query_parts)
-        
-        # Calculate query-relevant score
-        query_relevant_score = tagger.calculate_query_relevant_score(
-            civilian_data=civilian_data,
-            search_query=search_query,
-            skills_query=request.skills or [],
-            include_tags=request.include_tags or []
-        )
+        # Only use query-relevant scoring if there's actual search context
+        if (request.skills and len(request.skills) > 0) or (request.include_tags and len(request.include_tags) > 0):
+            civilian_data = {
+                "education_level": profile.education_level,
+                "skills": profile.skills,
+                "free_text": profile.free_text or "",
+                "availability": profile.availability,
+                "industry": profile.industry,
+                "tags": profile.tags_json or []
+            }
+            
+            # Build search query from request parameters
+            search_query_parts = []
+            if request.skills:
+                search_query_parts.extend(request.skills)
+            if request.include_tags:
+                search_query_parts.extend(request.include_tags)
+            search_query = " ".join(search_query_parts)
+            
+            # Calculate query-relevant score
+            capability_score = tagger.calculate_query_relevant_score(
+                civilian_data=civilian_data,
+                search_query=search_query,
+                skills_query=request.skills or [],
+                include_tags=request.include_tags or []
+            )
         
         search_results.append(SearchResult(
             user_id=user.id,
             education_level=profile.education_level,
             skills=profile.skills,
             availability=profile.availability,
-            capability_score=query_relevant_score,  # Use query-relevant score instead of static
+            capability_score=capability_score,  # Use static score by default, query-relevant when context provided
             tags=profile.tags_json or [],
             lat=user.lat + lat_offset,
             lon=user.lon + lon_offset,

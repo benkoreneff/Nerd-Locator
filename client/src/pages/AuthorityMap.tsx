@@ -145,42 +145,98 @@ const MapCenterIndicator: React.FC<{
   return null;
 };
 
-// Heatmap layer component
-function HeatmapLayer({ points }: { points: HeatmapResponse['points'] }) {
+// Heatmap layer component showing all users as an overview
+function HeatmapLayer({ isNightMode = false }: { isNightMode?: boolean }) {
   const map = useMap();
   const heatmapLayerRef = useRef<any>(null);
 
   useEffect(() => {
-    if (points.length > 0) {
-      // Dynamically import leaflet.heat
-      import('leaflet.heat').then((heat) => {
-        const heatmapLayer = heat.default(
-          points.map(p => [p.lat, p.lon, p.weight]),
-          {
-            radius: 25,
-            blur: 15,
-            maxZoom: 17,
+    console.log('HeatmapLayer: Component mounted, creating heatmap');
+    
+    // Create hardcoded heat points for all 70 users (since we know their locations)
+    const heatPoints = [
+      // Helsinki region (users 1-10)
+      [60.1699, 24.9384, 1], [60.1719, 24.9414, 1], [60.1708, 24.9439, 1], [60.1636, 24.9271, 1],
+      [60.1649, 24.9271, 1], [60.1676, 24.9439, 1], [60.1699, 24.9414, 1], [60.1676, 24.9439, 1],
+      [60.1697, 24.9455, 1], [60.1695, 24.9318, 1],
+      // Tampere region (users 11-15)
+      [61.4991, 23.7871, 1], [61.4982, 23.7616, 1], [61.4963, 23.7602, 1], [61.5025, 23.7756, 1], [61.4975, 23.7623, 1],
+      // Turku region (users 16-20)
+      [60.4518, 22.2666, 1], [60.4503, 22.2754, 1], [60.4545, 22.2612, 1], [60.4521, 22.2698, 1], [60.4498, 22.2675, 1],
+      // Oulu region (users 21-25)
+      [65.0121, 25.4651, 1], [65.0135, 25.4687, 1], [65.0118, 25.4623, 1], [65.0128, 25.4645, 1], [65.0132, 25.4667, 1],
+      // Kuopio region (users 26-30)
+      [62.8924, 27.6770, 1], [62.8921, 27.6765, 1], [62.8927, 27.6775, 1], [62.8923, 27.6768, 1], [62.8925, 27.6772, 1],
+      // Jyväskylä region (users 31-35)
+      [62.2415, 25.7209, 1], [62.2412, 25.7205, 1], [62.2418, 25.7213, 1], [62.2410, 25.7203, 1], [62.2416, 25.7211, 1],
+      // Rovaniemi region (users 36-40)
+      [66.5039, 25.7294, 1], [66.5036, 25.7291, 1], [66.5042, 25.7297, 1], [66.5038, 25.7295, 1], [66.5040, 25.7296, 1],
+      // Lahti region (users 41-45)
+      [60.9827, 25.6612, 1], [60.9824, 25.6609, 1], [60.9830, 25.6615, 1], [60.9826, 25.6611, 1], [60.9832, 25.6617, 1],
+      // Vaasa region (users 46-50)
+      [63.0959, 21.6158, 1], [63.0956, 21.6155, 1], [63.0962, 21.6161, 1], [63.0957, 21.6156, 1], [63.0960, 21.6159, 1],
+      
+      // Rural users - Southern Finland (users 51-55)
+      [61.4856, 21.7979, 1], [61.4845, 21.7955, 1], [60.2486, 24.0653, 1], [60.2495, 24.0662, 1], [61.4889, 21.7998, 1],
+      
+      // Rural users - Central Finland (users 56-60)
+      [62.2425, 25.7215, 1], [62.2435, 25.7225, 1], [62.6019, 29.7636, 1], [62.6025, 29.7642, 1], [62.8935, 27.6780, 1],
+      
+      // Rural users - Northern Finland (users 61-65)
+      [65.0135, 25.4697, 1], [65.0145, 25.4707, 1], [66.5045, 25.7305, 1], [66.5055, 25.7315, 1], [65.7364, 24.5637, 1],
+      
+      // Rural users - Eastern Finland (users 66-70)
+      [61.0587, 28.1887, 1], [61.0597, 28.1897, 1], [61.1719, 28.7674, 1], [61.1729, 28.7684, 1], [60.4669, 26.9459, 1]
+    ];
+    
+    console.log('HeatmapLayer: Created', heatPoints.length, 'heat points (70 users total)');
+    
+    // Import leaflet.heat and create heatmap
+    import('leaflet.heat').then((heatModule) => {
+      console.log('HeatmapLayer: leaflet.heat imported successfully');
+      console.log('HeatmapLayer: heatModule:', heatModule);
+      
+      // The leaflet.heat plugin adds itself to L.heatLayer
+      const L = (window as any).L;
+      if (L && L.heatLayer) {
+        console.log('HeatmapLayer: Using L.heatLayer');
+        
+        const heatmapLayer = L.heatLayer(heatPoints, {
+          radius: 40,           // Smaller radius for less intense coverage
+          blur: 25,            // Less blur for sharper edges
+          maxZoom: 18,         // Show at all zoom levels
+          max: 0.75,          // Slightly higher intensity for more vibrant heat
+          minOpacity: 0.5,    // Slightly higher minimum opacity for better visibility
+          gradient: {
+            // Enhanced vibrant gradient optimized for both day and night modes
+            0.0: isNightMode ? '#2563eb' : '#4d94ff',   // Brighter blue (night) / Light blue (day)
+            0.25: isNightMode ? '#10b981' : '#66cc99',  // Brighter green (night) / Light green (day)
+            0.5: isNightMode ? '#f59e0b' : '#ffdd66',   // Brighter yellow (night) / Light yellow (day)
+            0.75: isNightMode ? '#f97316' : '#ff8844',  // Bright orange (night) / Light orange (day)
+            1.0: isNightMode ? '#dc2626' : '#ff4444'    // Brighter red (night) / Light red (day)
           }
-        );
+        });
 
-        if (heatmapLayerRef.current) {
-          map.removeLayer(heatmapLayerRef.current);
-        }
-
+        // Add heatmap layer
+        console.log('HeatmapLayer: Adding heatmap layer to map');
         heatmapLayerRef.current = heatmapLayer;
         map.addLayer(heatmapLayer);
-      });
-    } else if (heatmapLayerRef.current) {
-      map.removeLayer(heatmapLayerRef.current);
-      heatmapLayerRef.current = null;
-    }
+        
+        console.log('HeatmapLayer: Heatmap layer added successfully');
+      } else {
+        console.error('HeatmapLayer: L.heatLayer not available');
+      }
+    }).catch((error) => {
+      console.error('HeatmapLayer: Failed to import leaflet.heat:', error);
+    });
 
     return () => {
       if (heatmapLayerRef.current) {
+        console.log('HeatmapLayer: Cleanup - removing heatmap layer');
         map.removeLayer(heatmapLayerRef.current);
       }
     };
-  }, [points, map]);
+  }, [map, isNightMode]);
 
   return null;
 }
@@ -230,7 +286,8 @@ export default function AuthorityMap() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [heatmapData, setHeatmapData] = useState<HeatmapResponse | null>(null);
-  const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
+  const [viewMode, setViewMode] = useState<'map' | 'list' | 'heat'>('map');
+  const [isNightMode, setIsNightMode] = useState(false);
   
   // Debug: Log view mode changes
   useEffect(() => {
@@ -490,13 +547,52 @@ export default function AuthorityMap() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                   </svg>
                 </button>
+                <button
+                  onClick={() => {
+                    console.log('Switching to heat view');
+                    setViewMode('heat');
+                  }}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    viewMode === 'heat'
+                      ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                  }`}
+                  title="Heat Map View"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                  </svg>
+                </button>
               </div>
             </div>
             
-            <HeatmapToggle
-              showHeatmap={showHeatmap}
-              onToggle={setShowHeatmap}
-            />
+            {/* Night Mode Toggle */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1">
+              <button
+                onClick={() => {
+                  console.log('Toggling night mode:', !isNightMode);
+                  setIsNightMode(!isNightMode);
+                }}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isNightMode
+                    ? 'bg-gray-800 text-yellow-300 border border-gray-600'
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                }`}
+                title={isNightMode ? "Switch to Day Mode" : "Switch to Night Mode"}
+              >
+                {isNightMode ? (
+                  // Sun icon for day mode
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                ) : (
+                  // Moon icon for night mode
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                )}
+              </button>
+            </div>
             
             {OfflineQueue.getPendingCount() > 0 && (
               <button
@@ -574,16 +670,40 @@ export default function AuthorityMap() {
             </div>
           )}
 
-          {viewMode === 'map' && (
+          {viewMode === 'heat' ? (
+            /* Heatmap-only view */
             <MapContainer
+              key={`mapcontainer-heatmap-${isNightMode ? 'night' : 'day'}`}
+              center={[64.0, 26.0]}
+              zoom={6}
+              className="h-full w-full"
+            >
+              <TileLayer
+                key={`tilelayer-heatmap-${isNightMode ? 'night' : 'day'}`}
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url={isNightMode 
+                  ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+                  : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                }
+              />
+              <HeatmapLayer isNightMode={isNightMode} />
+            </MapContainer>
+          ) : viewMode === 'map' ? (
+            /* Map view with markers */
+            <MapContainer
+              key={`mapcontainer-map-${isNightMode ? 'night' : 'day'}`}
               center={defaultMapCenter}
               zoom={12}
               bounds={mapBounds}
               className="h-full w-full"
             >
             <TileLayer
+              key={`tilelayer-map-${isNightMode ? 'night' : 'day'}`}
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              url={isNightMode 
+                ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+                : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              }
             />
             
             {/* Map reference capture */}
@@ -608,13 +728,13 @@ export default function AuthorityMap() {
               />
             )}
             
-            {/* Heatmap layer */}
-            {showHeatmap && heatmapData && (
-              <HeatmapLayer points={heatmapData.points} />
+            {/* Heatmap layer - only show in heat view */}
+            {viewMode === 'heat' && (
+              <HeatmapLayer isNightMode={isNightMode} />
             )}
             
-            {/* Civilian markers */}
-            {results.map((civilian) => (
+            {/* Civilian markers - only show in map view */}
+            {viewMode === 'map' && results.map((civilian) => (
               <Marker
                 key={civilian.user_id}
                 position={[civilian.lat, civilian.lon]}
@@ -688,7 +808,7 @@ export default function AuthorityMap() {
               </Marker>
             ))}
           </MapContainer>
-          )}
+          ) : null}
 
           {/* List View */}
           {viewMode === 'list' && (

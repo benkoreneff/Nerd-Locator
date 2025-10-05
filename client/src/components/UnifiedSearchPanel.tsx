@@ -616,7 +616,7 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
               type="text"
               value={skillSearchQuery}
               onChange={handleSkillSearchChange}
-              placeholder="Add a skill (inside or outside your industry)..."
+              placeholder="Add required skills..."
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-500"
             />
             

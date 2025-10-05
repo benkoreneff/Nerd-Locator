@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 
 from db import get_db
-from models import User, Profile, Request, Allocation, AuditLog
+from models import User, Profile, Resource, Request, Allocation, AuditLog
 from schemas import ExportResponse, UserResponse, ProfileResponse, RequestResponse, AllocationResponse
 from auth import require_authority
 
@@ -88,30 +88,61 @@ async def export_csv(
         headers={"Content-Disposition": "attachment; filename=kokonaisturvallisuus_export.csv"}
     )
 
+@router.post("/clear")
+async def clear_data(
+    current_user: dict = Depends(require_authority),
+    db: Session = Depends(get_db)
+):
+    """Clear all data from the database"""
+    
+    # Clear all tables in correct order (respecting foreign keys)
+    db.query(AuditLog).delete()
+    db.query(Allocation).delete()
+    db.query(Request).delete()
+    db.query(Resource).delete()
+    db.query(Profile).delete()
+    db.query(User).delete()
+    
+    db.commit()
+    
+    return {"detail": "Database cleared successfully"}
+
 @router.post("/seed")
 async def seed_data(
     current_user: dict = Depends(require_authority),
     db: Session = Depends(get_db)
 ):
-    """Load seed data for demo purposes"""
+    """Load comprehensive seed data for demo purposes"""
     
     # Check if data already exists
     existing_users = db.query(User).count()
     if existing_users > 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Database already contains data. Clear it first if you want to reseed."
+            detail="Database already contains data. Use /admin/clear first if you want to reseed."
         )
     
-    # Execute seed SQL
+    # Execute comprehensive seed SQL
     try:
-        with open("seed.sql", "r") as f:
+        with open("seed_50_users.sql", "r") as f:
             seed_sql = f.read()
         
-        # Split by semicolon and execute each statement
-        statements = [stmt.strip() for stmt in seed_sql.split(";") if stmt.strip()]
+        # Split by semicolon and execute each statement, but handle multi-line statements
+        statements = []
+        current_statement = ""
+        
+        for line in seed_sql.split('\n'):
+            line = line.strip()
+            if line and not line.startswith('--'):
+                current_statement += line + " "
+                if line.endswith(';'):
+                    statements.append(current_statement.strip())
+                    current_statement = ""
+        
+        # Execute each statement
         for statement in statements:
-            db.execute(text(statement))
+            if statement.strip():
+                db.execute(text(statement))
         
         db.commit()
         
