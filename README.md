@@ -11,20 +11,20 @@ This system enables coordination between civilians and authorities during emerge
 
 ## Key Features
 
-### 🛡️ Defense & Emergency Focus
+### Defense & Emergency Focus
 - **186+ Defense-focused skills** including drone piloting, cybersecurity, military communications, combat operations
 - **Intelligent tag extraction** using local LLM (Ollama) with regex fallback
 - **Query-relevant scoring** - civilians ranked by how well they match search criteria
 - **Resource tracking** - civilians can report tools, vehicles, and equipment
 
-### 🗺️ Advanced Map Interface
+### Advanced Map Interface
 - **Three view modes**: Map, Table, and Heat Map
 - **Night mode** for enhanced heatmap visualization
 - **Interactive search** with location, radius, and skill filtering
 - **Real-time heatmap** showing civilian density across regions
 - **Export capabilities** for CSV data download
 
-### 🔒 Privacy & Security Model
+### Privacy & Security Model
 
 - **PII Protection**: Personal information (name, address, DOB) is stored but only revealed after official allocation
 - **Anonymized Search**: Default search results show approximate locations and anonymized profiles
@@ -80,29 +80,29 @@ npm run dev
 
 The system includes **186+ specialized skills** covering:
 
-### 🚁 Drone & UAV Operations
+### Drone & UAV Operations
 - Drone Piloting, UAV Operations, Drone Building
 - FPV Racing, Aerial Surveillance, Autonomous Systems
 
-### 🤖 Automation & Robotics
+### Automation & Robotics
 - Industrial Automation, PLC Programming, SCADA Systems
 - Robotics, Autonomous Systems
 
-### 🔒 Cybersecurity & Defense
+### Cybersecurity & Defense
 - Cybersecurity, Network Security, Penetration Testing
 - Digital Forensics, Electronic Warfare, Signal Intelligence
 - Military Communications, Secure Communications
 
-### ⚔️ Military & Combat
+### Military & Combat
 - Military Experience, Combat Operations, Defense Systems
 - Weapons Systems, Explosive Ordnance Disposal
 - Counter-Intelligence, Intelligence Analysis
 
-### 🏥 Military Medicine
+### Military Medicine
 - Tactical Medicine, Combat First Aid, Field Medicine
 - Trauma Care, Emergency Response
 
-### 🔐 Advanced Cybersecurity
+### Advanced Cybersecurity
 - Malware Analysis, Reverse Engineering, Cryptanalysis
 - Quantum Cryptography, AI Security, IoT Security
 
@@ -162,12 +162,12 @@ Civitas includes intelligent tag extraction using local LLM (Ollama) for enhance
 ```
 
 ### Features
-- ✅ **Intelligent tag extraction** from free-text profiles
-- ✅ **Local processing** - no data leaves your server
-- ✅ **Automatic fallback** to regex-based tagging if LLM unavailable
-- ✅ **Context-aware** - considers education, skills, and availability
-- ✅ **Defense-focused** - extracts relevant tags for military and emergency coordination
-- ✅ **Privacy-preserving** - all processing happens locally
+- **Intelligent tag extraction** from free-text profiles
+- **Local processing** - no data leaves your server
+- **Automatic fallback** to regex-based tagging if LLM unavailable
+- **Context-aware** - considers education, skills, and availability
+- **Defense-focused** - extracts relevant tags for military and emergency coordination
+- **Privacy-preserving** - all processing happens locally
 
 ### How it works
 1. When civilians submit profiles with substantial free-text
@@ -178,17 +178,17 @@ Civitas includes intelligent tag extraction using local LLM (Ollama) for enhance
 
 ## View Modes
 
-### 🗺️ Map View (Default)
+### Map View (Default)
 - Interactive markers with civilian locations
 - Search radius visualization
 - Click markers for details and actions
 
-### 📊 Table View
+### Table View
 - Sortable columns: Rank, ID, Status, Distance, Score, Skills, Tags
 - Export to CSV functionality
 - Secondary sorting by clicking column headers
 
-### 🔥 Heat Map View
+### Heat Map View
 - Population density visualization
 - Blue-to-red color gradient
 - Dark night mode for enhanced visibility
@@ -278,4 +278,4 @@ MIT License - see LICENSE file for details.
 
 ---
 
-**Built for Finnish defense and emergency coordination scenarios** 🇫🇮
+**Built for Finnish defense and emergency coordination scenarios**
