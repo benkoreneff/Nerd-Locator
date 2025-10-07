@@ -15,8 +15,29 @@ logger = logging.getLogger(__name__)
 class LLMTaggerService:
     """Service for intelligent tag extraction using local LLM (Ollama) with fallbacks."""
     
-    def __init__(self, ollama_url: str = "http://localhost:11434", model: str = "phi3:mini"):
-        self.ollama_url = ollama_url
+    def __init__(self, ollama_url: str = None, model: str = "phi3:mini"):
+        # Auto-detect if running in Docker and use appropriate URL
+        if ollama_url is None:
+            # Try to detect if we're in Docker by checking for common Docker environment indicators
+            import os
+            in_docker = (
+                os.path.exists('/.dockerenv') or 
+                os.getenv('DOCKER_CONTAINER') or
+                os.getenv('CONTAINER') or
+                'docker' in os.getenv('HOSTNAME', '').lower()
+            )
+            
+            if in_docker:
+                # Running in Docker - use host.docker.internal to reach host machine
+                self.ollama_url = "http://host.docker.internal:11434"
+                logger.info("Detected Docker environment, using host.docker.internal:11434 for Ollama")
+            else:
+                # Running locally - use localhost
+                self.ollama_url = "http://localhost:11434"
+                logger.info("Detected local environment, using localhost:11434 for Ollama")
+        else:
+            self.ollama_url = ollama_url
+        
         self.model = model
         self.timeout = 10  # seconds
         

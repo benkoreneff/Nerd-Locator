@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { geocodeApi, skillsApi } from '../lib/api';
+import { geocodeApi, skillsApi, equipmentApi } from '../lib/api';
 import api from '../lib/api';
 import { GeocodeResult, SkillOption } from '../types';
 
@@ -34,6 +34,12 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
   const [skillSuggestions, setSkillSuggestions] = useState<SkillOption[]>([]);
   const [showSkillSuggestions, setShowSkillSuggestions] = useState(false);
   
+  // Equipment filters
+  const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
+  const [equipmentSearchQuery, setEquipmentSearchQuery] = useState('');
+  const [equipmentSuggestions, setEquipmentSuggestions] = useState<string[]>([]);
+  const [showEquipmentSuggestions, setShowEquipmentSuggestions] = useState(false);
+  
   // Advanced filters
   const [skillLevels, setSkillLevels] = useState<Record<string, number>>({});
   const [includeTags, setIncludeTags] = useState<string[]>([]);
@@ -44,18 +50,20 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
   
   const searchTimeoutRef = useRef<NodeJS.Timeout>();
   const skillTimeoutRef = useRef<NodeJS.Timeout>();
+  const equipmentTimeoutRef = useRef<NodeJS.Timeout>();
   const tagTimeoutRef = useRef<NodeJS.Timeout>();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const skillInputRef = useRef<HTMLInputElement>(null);
+  const equipmentInputRef = useRef<HTMLInputElement>(null);
   const tagInputRef = useRef<HTMLInputElement>(null);
 
   // Skill definitions for advanced section
   const skillDefinitions = [
-    { id: 'drone_piloting', name: 'Drone Piloting', description: 'UAV operation and piloting' },
-    { id: 'rf_radio', name: 'RF/Radio', description: 'Radio frequency and communications' },
-    { id: '3d_printing', name: '3D Printing', description: 'Additive manufacturing' },
-    { id: 'welding_metalwork', name: 'Welding/Metalwork', description: 'Metal fabrication and welding' },
-    { id: 'electrical_work', name: 'Electrical Work', description: 'Electrical systems and repair' }
+    { id: 'Drone Piloting', name: 'Drone Piloting', description: 'UAV operation and piloting' },
+    { id: 'RF/Radio', name: 'RF/Radio', description: 'Radio frequency and communications' },
+    { id: '3D Printing', name: '3D Printing', description: 'Additive manufacturing' },
+    { id: 'Welding/Metalwork', name: 'Welding/Metalwork', description: 'Metal fabrication and welding' },
+    { id: 'Electrical Work', name: 'Electrical Work', description: 'Electrical systems and repair' }
   ];
 
   // Debounced place search
@@ -127,6 +135,30 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
     }
   }, []);
 
+  // Debounced equipment search
+  const searchEquipment = useCallback(async (query: string) => {
+    console.log('searchEquipment called with query:', query);
+    if (query.length < 1) {
+      console.log('Query too short, clearing equipment suggestions');
+      setEquipmentSuggestions([]);
+      setShowEquipmentSuggestions(false);
+      return;
+    }
+
+    try {
+      console.log('Making API call to equipmentApi.suggestEquipment with query:', query);
+      const response = await equipmentApi.suggestEquipment(query);
+      console.log('Equipment search API response:', response);
+      setEquipmentSuggestions(response);
+      setShowEquipmentSuggestions(true);
+      console.log('Equipment suggestions set, showing dropdown');
+    } catch (err) {
+      console.error('Equipment search error:', err);
+      setEquipmentSuggestions([]);
+      setShowEquipmentSuggestions(false);
+    }
+  }, []);
+
   // Handle place search input
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
@@ -154,6 +186,22 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
     skillTimeoutRef.current = setTimeout(() => {
       console.log('Triggering skill search for:', query);
       searchSkills(query);
+    }, 300);
+  };
+
+  // Handle equipment search input
+  const handleEquipmentSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    console.log('Equipment search input changed:', query);
+    setEquipmentSearchQuery(query);
+    
+    if (equipmentTimeoutRef.current) {
+      clearTimeout(equipmentTimeoutRef.current);
+    }
+    
+    equipmentTimeoutRef.current = setTimeout(() => {
+      console.log('Triggering equipment search for:', query);
+      searchEquipment(query);
     }, 300);
   };
 
@@ -202,6 +250,21 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
   // Handle skill removal
   const handleSkillRemove = (skillId: number) => {
     setSelectedSkills(prev => prev.filter(s => s.id !== skillId));
+  };
+
+  // Handle equipment selection
+  const handleEquipmentSelect = (equipment: string) => {
+    console.log('Selecting equipment:', equipment);
+    if (!selectedEquipment.includes(equipment)) {
+      setSelectedEquipment(prev => [...prev, equipment]);
+    }
+    setEquipmentSearchQuery('');
+    setShowEquipmentSuggestions(false);
+  };
+
+  // Handle equipment removal
+  const handleEquipmentRemove = (equipment: string) => {
+    setSelectedEquipment(prev => prev.filter(e => e !== equipment));
   };
 
   // Handle tag selection
@@ -325,6 +388,11 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
       searchParams.skills = selectedSkills.map(s => s.name);
     }
 
+    // Add equipment filter
+    if (selectedEquipment.length > 0) {
+      searchParams.equipment = selectedEquipment;
+    }
+
     // Add minimum skill levels
     const activeSkillLevels = Object.entries(skillLevels).filter(([_, level]) => level > 0);
     if (activeSkillLevels.length > 0) {
@@ -390,6 +458,11 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
       console.log('No selected skills to add to query summary');
     }
     
+    if (selectedEquipment.length > 0) {
+      console.log('Adding equipment to query summary:', selectedEquipment);
+      parts.push(`Equipment: ${selectedEquipment.join(', ')}`);
+    }
+    
     if (advancedExpanded) {
       const activeLevels = Object.entries(skillLevels).filter(([_, level]) => level > 0);
       if (activeLevels.length > 0) {
@@ -437,6 +510,18 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
         if (!isSuggestionClick) {
           console.log('Clicking outside skills input, closing suggestions');
           setShowSkillSuggestions(false);
+        }
+      }
+      
+      // For equipment, check if clicking outside the input AND not on a suggestion button
+      if (equipmentInputRef.current && !equipmentInputRef.current.contains(target)) {
+        // Check if the click is on an equipment suggestion button (don't close if it is)
+        const isEquipmentSuggestionClick = target instanceof HTMLElement && 
+          target.closest('.equipment-suggestion-dropdown');
+        
+        if (!isEquipmentSuggestionClick) {
+          console.log('Clicking outside equipment input, closing suggestions');
+          setShowEquipmentSuggestions(false);
         }
       }
       
@@ -502,6 +587,24 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
             )}
           </button>
 
+          {/* Map Center Option */}
+          <button
+            type="button"
+            onClick={handleUseMapCenter}
+            className={`w-full mb-3 px-4 py-2 rounded-lg border-2 transition-colors ${
+              locationMode === 'map'
+                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <span className="flex items-center justify-center">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m0 0L9 7" />
+              </svg>
+              Use current map center
+            </span>
+          </button>
+
           {/* Place Search */}
           <div className="relative">
             <input
@@ -536,24 +639,6 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
               </div>
             )}
           </div>
-
-          {/* Map Center Option */}
-          <button
-            type="button"
-            onClick={handleUseMapCenter}
-            className={`w-full mt-3 px-4 py-2 rounded-lg border-2 transition-colors ${
-              locationMode === 'map'
-                ? 'border-blue-500 bg-blue-50 text-blue-700'
-                : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            <span className="flex items-center justify-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m0 0L9 7" />
-              </svg>
-              Use current map center
-            </span>
-          </button>
         </div>
 
         {/* 2. Search Radius */}
@@ -681,7 +766,66 @@ const UnifiedSearchPanel: React.FC<UnifiedSearchPanelProps> = ({
           )}
         </div>
 
-        {/* 5. Advanced (collapsible) */}
+        {/* 5. Equipment (typeahead) */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Equipment</label>
+          <div className="relative">
+            <input
+              ref={equipmentInputRef}
+              type="text"
+              value={equipmentSearchQuery}
+              onChange={handleEquipmentSearchChange}
+              placeholder="Add required equipment..."
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-500"
+            />
+            
+            {showEquipmentSuggestions && equipmentSuggestions.length > 0 && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto equipment-suggestion-dropdown">
+                {equipmentSuggestions.map((equipment) => (
+                  <button
+                    key={equipment}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Button clicked for equipment:', equipment);
+                      handleEquipmentSelect(equipment);
+                    }}
+                    className="w-full px-4 py-2 text-left hover:bg-gray-100 border-b border-gray-100 last:border-b-0"
+                  >
+                    <div className="font-medium text-gray-900">{equipment}</div>
+                    <div className="text-sm text-gray-500">
+                      Available equipment
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          {/* Selected Equipment */}
+          {selectedEquipment.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {selectedEquipment.map((equipment) => (
+                <span
+                  key={equipment}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800"
+                >
+                  {equipment}
+                  <button
+                    type="button"
+                    onClick={() => handleEquipmentRemove(equipment)}
+                    className="ml-1 text-green-600 hover:text-green-800"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 6. Advanced (collapsible) */}
         <div className="mb-4">
           <button
             type="button"

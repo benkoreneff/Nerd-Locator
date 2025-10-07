@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_, or_, func
 
 from db import get_db
-from models import User, Profile
+from models import User, Profile, Resource
 from schemas import SearchRequest, SearchResponse, SearchResult, DetailResponse, UserResponse, ProfileResponse, AdvancedSearchRequest, AdvancedSearchResponse
 from auth import require_authority, can_reveal_pii
 from services.audit import audit
@@ -348,6 +348,22 @@ async def search_advanced(
         if tag_conditions:
             query = query.filter(and_(*tag_conditions))  # All tags must be present
     
+    # Equipment filtering
+    if request.equipment:
+        # Filter users who have the specified equipment types
+        equipment_conditions = []
+        for equipment_type in request.equipment:
+            equipment_conditions.append(
+                and_(
+                    Resource.subtype == equipment_type,
+                    Resource.available == True
+                )
+            )
+        if equipment_conditions:
+            # Join with resources table and filter by equipment
+            query = query.join(Resource, User.id == Resource.user_id)
+            query = query.filter(or_(*equipment_conditions))
+    
     # Get total count
     total = query.count()
     
@@ -486,3 +502,26 @@ async def suggest_tags(
     # Sort and limit results
     filtered_tags.sort()
     return filtered_tags[:limit]
+
+@router.get("/equipment/suggest", response_model=List[str])
+async def suggest_equipment(q: str = Query(..., min_length=1), db: Session = Depends(get_db)):
+    """
+    Suggest equipment based on a query string.
+    Returns available equipment types from the resources table.
+    """
+    # Get all unique equipment subtypes from resources
+    all_equipment_query = db.query(Resource.subtype).filter(Resource.subtype.isnot(None))
+    unique_equipment = set()
+    for row in all_equipment_query.all():
+        if row.subtype:
+            unique_equipment.add(row.subtype)
+    
+    # Filter equipment based on query
+    if q:
+        filtered_equipment = [eq for eq in unique_equipment if q.lower() in eq.lower()]
+    else:
+        filtered_equipment = list(unique_equipment)
+    
+    # Sort and limit results
+    filtered_equipment.sort()
+    return filtered_equipment[:10]  # Return top 10 suggestions

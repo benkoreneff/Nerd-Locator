@@ -298,6 +298,16 @@ export const skillsApi = {
   }
 };
 
+// Equipment API
+export const equipmentApi = {
+  async suggestEquipment(query: string, limit: number = 10): Promise<string[]> {
+    const response = await api.get(`/search/equipment/suggest`, {
+      params: { q: query }
+    });
+    return response.data;
+  }
+};
+
 // Geocoding API
 export const geocodeApi = {
   async searchPlaces(query: string, limit: number = 5): Promise<GeocodeResult[]> {

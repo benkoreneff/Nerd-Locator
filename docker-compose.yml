@@ -13,6 +13,7 @@ services:
       - SECRET_KEY=demo-secret-key
       - API_HOST=0.0.0.0
       - API_PORT=8000
+      - DOCKER_CONTAINER=true
     volumes:
       - ./server:/app
       - server_data:/app/data

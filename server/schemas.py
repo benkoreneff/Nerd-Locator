@@ -63,6 +63,7 @@ class AdvancedSearchRequest(BaseModel):
     # Basic filters
     status: Optional[List[str]] = Field(None, description="Filter by status (available, allocated)")
     skills: Optional[List[str]] = Field(None, description="Skill names for keyword filtering")
+    equipment: Optional[List[str]] = Field(None, description="Equipment types that must be available")
     
     # Advanced filters
     min_levels: Optional[Dict[str, int]] = Field(None, description="Minimum level for each skill")

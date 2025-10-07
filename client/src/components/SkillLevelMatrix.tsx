@@ -121,7 +121,7 @@ export default function SkillLevelMatrix({ skillLevels, onSkillLevelsChange }: S
                     <div className="relative">
                       <button
                         type="button"
-                        className="text-blue-500 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-1"
+                        className="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 rounded-full p-1"
                         onMouseEnter={() => handleTooltipShow(level)}
                         onMouseLeave={() => handleTooltipHide()}
                         onFocus={() => handleTooltipShow(level)}
